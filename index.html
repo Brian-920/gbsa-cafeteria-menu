@@ -30,6 +30,11 @@
     margin: 0 auto;
     padding: 24px 16px 60px;
   }
+  @media (min-width: 900px) {
+    .page {
+      max-width: 1100px;
+    }
+  }
   .top-bar {
     text-align: center;
     margin-bottom: 24px;
@@ -48,6 +53,14 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+  @media (min-width: 900px) {
+    .accordion {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: start;
+      gap: 16px;
+    }
   }
   .accordion-item {
     background: var(--card);
@@ -100,27 +113,24 @@
     margin: 0 0 8px;
   }
   .channel-notice {
-    font-size: 12px;
-    line-height: 1.6;
-    color: var(--muted);
-    background: #f2f4f9;
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 14px;
-    white-space: pre-line;
+    display: none;
   }
-  .date-nav {
+  .date-pill-row {
     display: flex;
-    align-items: stretch;
+    align-items: center;
+    justify-content: center;
     gap: 8px;
+    margin-bottom: 12px;
   }
   .nav-btn {
     flex: 0 0 auto;
-    width: 36px;
+    width: 32px;
+    height: 32px;
     border: 1px solid var(--border);
     background: #fafbfd;
     border-radius: 10px;
-    font-size: 18px;
+    font-size: 17px;
+    line-height: 1;
     color: var(--brand);
     cursor: pointer;
     transition: background 0.15s ease;
@@ -132,18 +142,9 @@
     opacity: 0.3;
     cursor: default;
   }
-  .date-viewport {
-    flex: 1;
-    min-width: 0;
-    position: relative;
-  }
-  .day-panel {
-    display: none;
-  }
-  .day-panel.active {
-    display: block;
-  }
-  .day-panel-heading {
+  .date-pill-label {
+    flex: 1 1 auto;
+    max-width: 220px;
     text-align: center;
     font-size: 13.5px;
     font-weight: 700;
@@ -151,7 +152,15 @@
     background: #eef2fb;
     border-radius: 10px;
     padding: 8px 0;
-    margin-bottom: 12px;
+  }
+  .date-viewport {
+    position: relative;
+  }
+  .day-panel {
+    display: none;
+  }
+  .day-panel.active {
+    display: block;
   }
   .meal-grid {
     display: grid;
@@ -222,7 +231,7 @@
 <div class="page">
   <div class="top-bar">
     <h1>🍱 광교테크노밸리 구내식당 식단표</h1>
-    <div class="updated">마지막 업데이트: 2026년 07월 08일 18:18 (KST)</div>
+    <div class="updated">마지막 업데이트: 2026년 07월 08일 18:31 (KST)</div>
   </div>
 
   <div class="accordion">
@@ -234,14 +243,14 @@
       </button>
       <div class="accordion-panel-wrap">
         <div class="accordion-panel">
-          <div class="channel-notice">문의 사항 있으시면 언제든지 연락주세요 영양사 010-5285-5936
-*위 식단은 카카오톡채널에서 확인 하실수 있습니다. QR코드를 스캔하시면 편리하게 채널 추가 가능합니다.^^</div>
-          <div class="date-nav">
+          <div class="date-pill-row">
             <button type="button" class="nav-btn prev-btn" aria-label="이전 날짜">‹</button>
-            <div class="date-viewport">
-              
-    <div class="day-panel" data-index="0" data-date="07-06">
-      <div class="day-panel-heading">월요일 · 7월 6일</div>
+            <div class="date-pill-label"></div>
+            <button type="button" class="nav-btn next-btn" aria-label="다음 날짜">›</button>
+          </div>
+          <div class="date-viewport">
+            
+    <div class="day-panel" data-index="0" data-date="07-06" data-label="월요일 · 7월 6일">
       <div class="meal-grid">
         
     <div class="meal-box">
@@ -258,8 +267,7 @@
       </div>
     </div>
     
-    <div class="day-panel" data-index="1" data-date="07-07">
-      <div class="day-panel-heading">화요일 · 7월 7일</div>
+    <div class="day-panel" data-index="1" data-date="07-07" data-label="화요일 · 7월 7일">
       <div class="meal-grid">
         
     <div class="meal-box">
@@ -276,8 +284,7 @@
       </div>
     </div>
     
-    <div class="day-panel" data-index="2" data-date="07-08">
-      <div class="day-panel-heading">수요일 · 7월 8일</div>
+    <div class="day-panel" data-index="2" data-date="07-08" data-label="수요일 · 7월 8일">
       <div class="meal-grid">
         
     <div class="meal-box">
@@ -294,8 +301,7 @@
       </div>
     </div>
     
-    <div class="day-panel" data-index="3" data-date="07-09">
-      <div class="day-panel-heading">목요일 · 7월 9일</div>
+    <div class="day-panel" data-index="3" data-date="07-09" data-label="목요일 · 7월 9일">
       <div class="meal-grid">
         
     <div class="meal-box">
@@ -312,8 +318,7 @@
       </div>
     </div>
     
-    <div class="day-panel" data-index="4" data-date="07-10">
-      <div class="day-panel-heading">금요일 · 7월 10일</div>
+    <div class="day-panel" data-index="4" data-date="07-10" data-label="금요일 · 7월 10일">
       <div class="meal-grid">
         
     <div class="meal-box">
@@ -330,8 +335,6 @@
       </div>
     </div>
     
-            </div>
-            <button type="button" class="nav-btn next-btn" aria-label="다음 날짜">›</button>
           </div>
           <a class="source-link" href="https://pf.kakao.com/_MgUGn/113857158" target="_blank">원본 게시글 보기 →</a>
         </div>
@@ -345,103 +348,98 @@
       </button>
       <div class="accordion-panel-wrap">
         <div class="accordion-panel">
-          <div class="channel-notice">※ 하단 메뉴는 시장상황에 따라 변경될 수 있습니다. ※ 조기품절 시 라면, 보완식 등이 제공될 수 있습니다. ※ 문의사항 : 영양사 031-888-5969 로 연락 바랍니다.</div>
-          <div class="date-nav">
+          <div class="date-pill-row">
             <button type="button" class="nav-btn prev-btn" aria-label="이전 날짜">‹</button>
-            <div class="date-viewport">
-              
-    <div class="day-panel" data-index="0" data-date="07-06">
-      <div class="day-panel-heading">월요일 · 7월 6일</div>
-      <div class="meal-grid">
-        
-    <div class="meal-box">
-      <div class="meal-box-title">🍚 중식</div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>A코너</div><ul class="items"><li>오징어콩나물찜</li><li>잡채말이어묵볶음</li><li>청경채절이</li><li>순두부백탕</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>B코너</div><ul class="items"><li>유부우동</li><li>닭강정</li><li>콘치즈구이</li><li>오복지무침</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name'>음료</div><ul class="items"><li>현미밥</li><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name'>일반식</div><ul class="items"><li>열무쌈보리비빔밥</li><li>메밀전병</li><li>미역줄기볶음</li><li>우엉조림</li><li>얼갈이된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>Take Out</div><ul class="items"><li>카프레제샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
-    </div>
-    
-        
-    <div class="meal-box">
-      <div class="meal-box-title">🌙 석식</div>
-      <div class="meal-box-body"><p class="empty-meal">정보 없음</p></div>
-    </div>
-    
-      </div>
-    </div>
-    
-    <div class="day-panel" data-index="1" data-date="07-07">
-      <div class="day-panel-heading">화요일 · 7월 7일</div>
-      <div class="meal-grid">
-        
-    <div class="meal-box">
-      <div class="meal-box-title">🍚 중식</div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>A코너</div><ul class="items"><li>모듬장조림</li><li>그린빈스버섯볶음</li><li>도토리묵야채무침</li><li>바지락미역국</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>B코너</div><ul class="items"><li>김치볶음밥</li><li>멘치까스*소스</li><li>야채쫄면</li><li>단무지</li><li>바지락미역국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name'>음료</div><ul class="items"><li>현미밥</li><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name'>일반식</div><ul class="items"><li>부대찌개</li><li>야채계란찜</li><li>호박볶음</li><li>양념깻잎지</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>Take Out</div><ul class="items"><li>훈제연어샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
-    </div>
-    
-        
-    <div class="meal-box">
-      <div class="meal-box-title">🌙 석식</div>
-      <div class="meal-box-body"><p class="empty-meal">정보 없음</p></div>
-    </div>
-    
-      </div>
-    </div>
-    
-    <div class="day-panel" data-index="2" data-date="07-08">
-      <div class="day-panel-heading">수요일 · 7월 8일</div>
-      <div class="meal-grid">
-        
-    <div class="meal-box">
-      <div class="meal-box-title">🍚 중식</div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>A코너</div><ul class="items"><li>짬뽕덮밥</li><li>후르츠만두탕수</li><li>브로콜리볶음</li><li>시금치된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>B코너</div><ul class="items"><li>파채돈불고기</li><li>갓김치들기름막국수</li><li>무나물</li><li>시금치된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name'>음료</div><ul class="items"><li>현미밥</li><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name'>일반식</div><ul class="items"><li>장칼국수</li><li>떡갈비구이</li><li>맛살야채볶음</li><li>양파장아찌</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>Take Out</div><ul class="items"><li>크래미감자샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
-    </div>
-    
-        
-    <div class="meal-box">
-      <div class="meal-box-title">🌙 석식</div>
-      <div class="meal-box-body"><p class="empty-meal">정보 없음</p></div>
-    </div>
-    
-      </div>
-    </div>
-    
-    <div class="day-panel" data-index="3" data-date="07-09">
-      <div class="day-panel-heading">목요일 · 7월 9일</div>
-      <div class="meal-grid">
-        
-    <div class="meal-box">
-      <div class="meal-box-title">🍚 중식</div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>A코너</div><ul class="items"><li>돈육두부조림</li><li>감자채볶음</li><li>청포묵김가루무침</li><li>콩나물국</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>B코너</div><ul class="items"><li>카레라이스</li><li>칼집소시지구이</li><li>크림떡볶이</li><li>콩나물국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name'>음료</div><ul class="items"><li>현미밥</li><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name'>일반식</div><ul class="items"><li>돼지장터국밥</li><li>김치전</li><li>계란장조림</li><li>부추겉절이</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>Take Out</div><ul class="items"><li>훈제오리샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
-    </div>
-    
-        
-    <div class="meal-box">
-      <div class="meal-box-title">🌙 석식</div>
-      <div class="meal-box-body"><p class="empty-meal">정보 없음</p></div>
-    </div>
-    
-      </div>
-    </div>
-    
-    <div class="day-panel" data-index="4" data-date="07-10">
-      <div class="day-panel-heading">금요일 · 7월 10일</div>
-      <div class="meal-grid">
-        
-    <div class="meal-box">
-      <div class="meal-box-title">🍚 중식</div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>A코너</div><ul class="items"><li>부타동</li><li>미니돈까스</li><li>새송이버섯볶음</li><li>다시마무국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>B코너</div><ul class="items"><li>안동찜닭</li><li>사각어묵볶음</li><li>아삭이고추쌈장무침</li><li>다시마무국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name'>음료</div><ul class="items"><li>현미밥</li><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name'>Take Out</div><ul class="items"><li>닭가슴살샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
-    </div>
-    
-        
-    <div class="meal-box">
-      <div class="meal-box-title">🌙 석식</div>
-      <div class="meal-box-body"><p class="empty-meal">정보 없음</p></div>
-    </div>
-    
-      </div>
-    </div>
-    
-            </div>
+            <div class="date-pill-label"></div>
             <button type="button" class="nav-btn next-btn" aria-label="다음 날짜">›</button>
+          </div>
+          <div class="date-viewport">
+            
+    <div class="day-panel" data-index="0" data-date="07-06" data-label="월요일 · 7월 6일">
+      <div class="meal-grid">
+        
+    <div class="meal-box">
+      <div class="meal-box-title">🍚 중식</div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>A코너</div><ul class="items"><li>오징어콩나물찜</li><li>잡채말이어묵볶음</li><li>청경채절이</li><li>순두부백탕</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>B코너</div><ul class="items"><li>유부우동</li><li>닭강정</li><li>콘치즈구이</li><li>오복지무침</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name'>음료</div><ul class="items"><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name'>Take Out</div><ul class="items"><li>카프레제샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
+    </div>
+    
+        
+    <div class="meal-box">
+      <div class="meal-box-title">🌙 석식</div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>일반식</div><ul class="items"><li>열무쭈꾸미비빔밥</li><li>메밀전병</li><li>미역줄기볶음</li><li>우엉조림</li><li>얼갈이된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div>
+    </div>
+    
+      </div>
+    </div>
+    
+    <div class="day-panel" data-index="1" data-date="07-07" data-label="화요일 · 7월 7일">
+      <div class="meal-grid">
+        
+    <div class="meal-box">
+      <div class="meal-box-title">🍚 중식</div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>A코너</div><ul class="items"><li>모듬장조림</li><li>그린빈스버섯볶음</li><li>도토리묵야채무침</li><li>바지락미역국</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>B코너</div><ul class="items"><li>김치볶음밥</li><li>멘치까스*소스</li><li>야채쫄면</li><li>단무지</li><li>바지락미역국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name'>음료</div><ul class="items"><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name'>Take Out</div><ul class="items"><li>훈제연어샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
+    </div>
+    
+        
+    <div class="meal-box">
+      <div class="meal-box-title">🌙 석식</div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>일반식</div><ul class="items"><li>부대찌개</li><li>야채계란찜</li><li>호박볶음</li><li>양념깻잎지</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div>
+    </div>
+    
+      </div>
+    </div>
+    
+    <div class="day-panel" data-index="2" data-date="07-08" data-label="수요일 · 7월 8일">
+      <div class="meal-grid">
+        
+    <div class="meal-box">
+      <div class="meal-box-title">🍚 중식</div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>A코너</div><ul class="items"><li>짬뽕덮밥</li><li>후르츠만두탕수</li><li>브로콜리볶음</li><li>시금치된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>B코너</div><ul class="items"><li>파채돈불고기</li><li>갓김치들기름막국수</li><li>무나물</li><li>시금치된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name'>음료</div><ul class="items"><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name'>Take Out</div><ul class="items"><li>크래미감자샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
+    </div>
+    
+        
+    <div class="meal-box">
+      <div class="meal-box-title">🌙 석식</div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>일반식</div><ul class="items"><li>장칼국수</li><li>떡갈비구이</li><li>맛살야채볶음</li><li>양파장아찌</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div>
+    </div>
+    
+      </div>
+    </div>
+    
+    <div class="day-panel" data-index="3" data-date="07-09" data-label="목요일 · 7월 9일">
+      <div class="meal-grid">
+        
+    <div class="meal-box">
+      <div class="meal-box-title">🍚 중식</div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>A코너</div><ul class="items"><li>돈육두부조림</li><li>감자채볶음</li><li>청포묵김가루무침</li><li>콩나물국</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>B코너</div><ul class="items"><li>카레라이스</li><li>칼집소시지구이</li><li>크림떡볶이</li><li>콩나물국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name'>음료</div><ul class="items"><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name'>Take Out</div><ul class="items"><li>훈제오리샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
+    </div>
+    
+        
+    <div class="meal-box">
+      <div class="meal-box-title">🌙 석식</div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>일반식</div><ul class="items"><li>돼지장터국밥</li><li>김치전</li><li>계란장조림</li><li>부추겉절이</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div>
+    </div>
+    
+      </div>
+    </div>
+    
+    <div class="day-panel" data-index="4" data-date="07-10" data-label="금요일 · 7월 10일">
+      <div class="meal-grid">
+        
+    <div class="meal-box">
+      <div class="meal-box-title">🍚 중식</div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name'>A코너</div><ul class="items"><li>부타동</li><li>미니돈까스</li><li>새송이버섯볶음</li><li>다시마무국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>B코너</div><ul class="items"><li>안동찜닭</li><li>사각어묵볶음</li><li>아삭이고추쌈장무침</li><li>다시마무국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name'>음료</div><ul class="items"><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name'>Take Out</div><ul class="items"><li>닭가슴살샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
+    </div>
+    
+        
+    <div class="meal-box">
+      <div class="meal-box-title">🌙 석식</div>
+      <div class="meal-box-body"><p class="empty-meal">정보 없음</p></div>
+    </div>
+    
+      </div>
+    </div>
+    
           </div>
           <a class="source-link" href="https://pf.kakao.com/_XCVXb/113855256" target="_blank">원본 게시글 보기 →</a>
         </div>
@@ -450,18 +448,19 @@
     
     <div class="accordion-item" data-channel="nano_gaeram" data-dates='["07-06", "07-07", "07-08", "07-09", "07-10"]'>
       <button type="button" class="accordion-header">
-        <span class="accordion-title">🔬 나노기술원 가람푸드써비스 구내식당</span>
+        <span class="accordion-title">🔬 한국나노기술원 구내식당</span>
         <span class="chevron">›</span>
       </button>
       <div class="accordion-panel-wrap">
         <div class="accordion-panel">
-          
-          <div class="date-nav">
+          <div class="date-pill-row">
             <button type="button" class="nav-btn prev-btn" aria-label="이전 날짜">‹</button>
-            <div class="date-viewport">
-              
-    <div class="day-panel" data-index="0" data-date="07-06">
-      <div class="day-panel-heading">월요일 · 7월 6일</div>
+            <div class="date-pill-label"></div>
+            <button type="button" class="nav-btn next-btn" aria-label="다음 날짜">›</button>
+          </div>
+          <div class="date-viewport">
+            
+    <div class="day-panel" data-index="0" data-date="07-06" data-label="월요일 · 7월 6일">
       <div class="meal-grid">
         
     <div class="meal-box">
@@ -478,8 +477,7 @@
       </div>
     </div>
     
-    <div class="day-panel" data-index="1" data-date="07-07">
-      <div class="day-panel-heading">화요일 · 7월 7일</div>
+    <div class="day-panel" data-index="1" data-date="07-07" data-label="화요일 · 7월 7일">
       <div class="meal-grid">
         
     <div class="meal-box">
@@ -496,8 +494,7 @@
       </div>
     </div>
     
-    <div class="day-panel" data-index="2" data-date="07-08">
-      <div class="day-panel-heading">수요일 · 7월 8일</div>
+    <div class="day-panel" data-index="2" data-date="07-08" data-label="수요일 · 7월 8일">
       <div class="meal-grid">
         
     <div class="meal-box">
@@ -514,8 +511,7 @@
       </div>
     </div>
     
-    <div class="day-panel" data-index="3" data-date="07-09">
-      <div class="day-panel-heading">목요일 · 7월 9일</div>
+    <div class="day-panel" data-index="3" data-date="07-09" data-label="목요일 · 7월 9일">
       <div class="meal-grid">
         
     <div class="meal-box">
@@ -532,8 +528,7 @@
       </div>
     </div>
     
-    <div class="day-panel" data-index="4" data-date="07-10">
-      <div class="day-panel-heading">금요일 · 7월 10일</div>
+    <div class="day-panel" data-index="4" data-date="07-10" data-label="금요일 · 7월 10일">
       <div class="meal-grid">
         
     <div class="meal-box">
@@ -550,8 +545,6 @@
       </div>
     </div>
     
-            </div>
-            <button type="button" class="nav-btn next-btn" aria-label="다음 날짜">›</button>
           </div>
           <a class="source-link" href="https://pf.kakao.com/_PxhQqX/113867395" target="_blank">원본 게시글 보기 →</a>
         </div>
@@ -585,10 +578,18 @@
 
   function setActiveDay(item, index) {
     var panels = item.querySelectorAll(".day-panel");
+    var activePanel = null;
     panels.forEach(function (p) {
-      p.classList.toggle("active", parseInt(p.dataset.index, 10) === index);
+      var isActive = parseInt(p.dataset.index, 10) === index;
+      p.classList.toggle("active", isActive);
+      if (isActive) activePanel = p;
     });
     item.dataset.currentIndex = index;
+
+    var label = item.querySelector(".date-pill-label");
+    if (label && activePanel) {
+      label.textContent = activePanel.dataset.label || "";
+    }
 
     var dates = JSON.parse(item.dataset.dates || "[]");
     var prevBtn = item.querySelector(".prev-btn");
