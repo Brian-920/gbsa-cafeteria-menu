@@ -473,6 +473,18 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     }
   });
 
+  // PC(넓은 화면, 900px 이상)에서는 기본으로 펼쳐진 상태로 시작.
+  // 모바일(좁은 화면)에서는 기존처럼 기본 닫힘 유지.
+  if (window.matchMedia("(min-width: 900px)").matches) {
+    document.querySelectorAll(".accordion-item").forEach(function (item) {
+      var header = item.querySelector(".accordion-header");
+      if (header && !header.disabled) {
+        item.classList.add("open");
+        recalcHeight(item);
+      }
+    });
+  }
+
   window.addEventListener("resize", function () {
     document.querySelectorAll(".accordion-item.open").forEach(recalcHeight);
   });
