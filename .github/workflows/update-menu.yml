@@ -8,7 +8,7 @@ on:
     - cron: "0 22 * * 0"
 
 permissions:
-  contents: write   # gh-pages 브랜치에 배포하기 위해 필요
+  contents: write   # data/archive.json 커밋 + gh-pages 배포에 필요
 
 jobs:
   update-menu:
@@ -35,10 +35,15 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/ocr_menu.py
 
-      - name: 3) 웹페이지 생성
+      - name: 3) 아카이브 병합 (공휴일 판정 포함)
+        env:
+          KOREA_HOLIDAY_API_KEY: ${{ secrets.KOREA_HOLIDAY_API_KEY }}
+        run: python scripts/merge_archive.py
+
+      - name: 4) 웹페이지 생성
         run: python scripts/generate_site.py
 
-      - name: 디버그용 결과물 업로드 (원본 이미지, JSON, 스크린샷)
+      - name: 디버그용 결과물 업로드 (원본 이미지, JSON)
         uses: actions/upload-artifact@v4
         with:
           name: menu-run-output
@@ -47,6 +52,15 @@ jobs:
             output/data/
           retention-days: 14
         if: always()
+
+      - name: 아카이브(data/archive.json) 저장소에 커밋
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/archive.json data/holidays_cache.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "chore: 식단 아카이브 자동 갱신 [skip ci]"
+          git push
+        if: success()
 
       - name: GitHub Pages로 배포
         uses: peaceiris/actions-gh-pages@v4
