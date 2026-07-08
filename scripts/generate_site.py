@@ -32,6 +32,28 @@ MMDD_PATTERN = re.compile(r"^\d{2}-\d{2}$")
 
 DINNER_KEYWORDS = ["석식", "저녁"]
 
+# 채널별 예외 규칙: 카카오 채널마다 표 양식이 고정되어 있어(관리자가 매주 같은 틀에 메뉴만 교체),
+# 그룹명만으로는 중식/석식이 구분 안 되는 경우를 여기서 명시적으로 처리한다.
+# 예) 경기R&DB센터는 "일반식"이라는 이름으로 되어 있지만 실제로는 석식 메뉴다.
+CHANNEL_DINNER_GROUP_OVERRIDE = {
+    "rdb_center": {"일반식"},
+}
+
+# 채널별로 특정 그룹에서 매번 잘못 섞여 들어오는 항목을 제외 처리.
+# 예) 경기R&DB센터의 "음료" 그룹은 표 구조상 "현미밥"이 같이 딸려 들어오는데
+#     실제로는 "후식차, 숭늉"만 음료 항목이다.
+CHANNEL_GROUP_ITEM_EXCLUDE = {
+    "rdb_center": {
+        "음료": {"현미밥"},
+    },
+}
+
+# 아코디언에 표시할 건물/구내식당 이름을 여기서 최종적으로 고정한다.
+# (OCR/스크래핑 단계의 label과 무관하게 항상 이 이름으로 표시됨)
+DISPLAY_LABEL_OVERRIDE = {
+    "nano_gaeram": "한국나노기술원 구내식당",
+}
+
 
 def extract_date_iso(day, fallback_year):
     """day 딕셔너리에서 MM-DD 형식의 날짜 문자열을 뽑아낸다.
@@ -51,8 +73,11 @@ def extract_date_iso(day, fallback_year):
     return None
 
 
-def classify_meal_type(group_name):
-    name = group_name or ""
+def classify_meal_type(channel_name, group_name):
+    name = (group_name or "").strip()
+    override_set = CHANNEL_DINNER_GROUP_OVERRIDE.get(channel_name, set())
+    if name in override_set:
+        return "dinner"
     if any(k in name for k in DINNER_KEYWORDS):
         return "dinner"
     return "lunch"
@@ -60,7 +85,7 @@ def classify_meal_type(group_name):
 
 def build_channel_data(entry, fallback_year):
     name = entry.get("name")
-    label = entry.get("label", name)
+    label = DISPLAY_LABEL_OVERRIDE.get(name, entry.get("label", name))
     status = entry.get("status")
 
     channel = {
@@ -68,7 +93,6 @@ def build_channel_data(entry, fallback_year):
         "label": label,
         "status": status,
         "post_url": entry.get("post_url"),
-        "notice": "",
         "days": [],
     }
 
@@ -80,7 +104,6 @@ def build_channel_data(entry, fallback_year):
         return channel
 
     menu = entry.get("menu", {})
-    channel["notice"] = menu.get("notice", "") or ""
 
     days_out = []
     for day in menu.get("days", []):
@@ -98,11 +121,18 @@ def build_channel_data(entry, fallback_year):
         lunch_groups = []
         dinner_groups = []
         for g in day.get("menu_groups", []):
-            bucket = classify_meal_type(g.get("group_name", ""))
+            group_name = g.get("group_name", "")
+            bucket = classify_meal_type(name, group_name)
             target = dinner_groups if bucket == "dinner" else lunch_groups
+
+            items = g.get("items", [])
+            exclude_set = CHANNEL_GROUP_ITEM_EXCLUDE.get(name, {}).get(group_name, set())
+            if exclude_set:
+                items = [it for it in items if it not in exclude_set]
+
             target.append({
-                "group_name": g.get("group_name", ""),
-                "items": g.get("items", []),
+                "group_name": group_name,
+                "items": items,
             })
 
         days_out.append({
@@ -153,9 +183,9 @@ def render_meal_box(title, icon, groups):
 def render_day_panel(day, index):
     lunch_html = render_meal_box("중식", "🍚", day["lunch_groups"])
     dinner_html = render_meal_box("석식", "🌙", day["dinner_groups"])
+    label_attr = day['label'].replace('"', '&quot;')
     return f"""
-    <div class="day-panel" data-index="{index}" data-date="{day['date_iso'] or ''}">
-      <div class="day-panel-heading">{day['label']}</div>
+    <div class="day-panel" data-index="{index}" data-date="{day['date_iso'] or ''}" data-label="{label_attr}">
       <div class="meal-grid">
         {lunch_html}
         {dinner_html}
@@ -191,8 +221,6 @@ def render_channel_accordion(channel, index):
     days = channel["days"]
     dates_json = json.dumps([d["date_iso"] for d in days], ensure_ascii=False)
     days_html = "".join(render_day_panel(days[i], i) for i in range(len(days)))
-    notice = channel.get("notice", "")
-    notice_html = f'<div class="channel-notice">{notice}</div>' if notice else ""
     source_html = (
         f'<a class="source-link" href="{channel["post_url"]}" target="_blank">원본 게시글 보기 →</a>'
         if channel.get("post_url") else ""
@@ -206,13 +234,13 @@ def render_channel_accordion(channel, index):
       </button>
       <div class="accordion-panel-wrap">
         <div class="accordion-panel">
-          {notice_html}
-          <div class="date-nav">
+          <div class="date-pill-row">
             <button type="button" class="nav-btn prev-btn" aria-label="이전 날짜">‹</button>
-            <div class="date-viewport">
-              {days_html}
-            </div>
+            <div class="date-pill-label"></div>
             <button type="button" class="nav-btn next-btn" aria-label="다음 날짜">›</button>
+          </div>
+          <div class="date-viewport">
+            {days_html}
           </div>
           {source_html}
         </div>
@@ -253,6 +281,11 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     margin: 0 auto;
     padding: 24px 16px 60px;
   }
+  @media (min-width: 900px) {
+    .page {
+      max-width: 1100px;
+    }
+  }
   .top-bar {
     text-align: center;
     margin-bottom: 24px;
@@ -271,6 +304,14 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+  @media (min-width: 900px) {
+    .accordion {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: start;
+      gap: 16px;
+    }
   }
   .accordion-item {
     background: var(--card);
@@ -323,27 +364,24 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     margin: 0 0 8px;
   }
   .channel-notice {
-    font-size: 12px;
-    line-height: 1.6;
-    color: var(--muted);
-    background: #f2f4f9;
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 14px;
-    white-space: pre-line;
+    display: none;
   }
-  .date-nav {
+  .date-pill-row {
     display: flex;
-    align-items: stretch;
+    align-items: center;
+    justify-content: center;
     gap: 8px;
+    margin-bottom: 12px;
   }
   .nav-btn {
     flex: 0 0 auto;
-    width: 36px;
+    width: 32px;
+    height: 32px;
     border: 1px solid var(--border);
     background: #fafbfd;
     border-radius: 10px;
-    font-size: 18px;
+    font-size: 17px;
+    line-height: 1;
     color: var(--brand);
     cursor: pointer;
     transition: background 0.15s ease;
@@ -355,18 +393,9 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     opacity: 0.3;
     cursor: default;
   }
-  .date-viewport {
-    flex: 1;
-    min-width: 0;
-    position: relative;
-  }
-  .day-panel {
-    display: none;
-  }
-  .day-panel.active {
-    display: block;
-  }
-  .day-panel-heading {
+  .date-pill-label {
+    flex: 1 1 auto;
+    max-width: 220px;
     text-align: center;
     font-size: 13.5px;
     font-weight: 700;
@@ -374,7 +403,15 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     background: #eef2fb;
     border-radius: 10px;
     padding: 8px 0;
-    margin-bottom: 12px;
+  }
+  .date-viewport {
+    position: relative;
+  }
+  .day-panel {
+    display: none;
+  }
+  .day-panel.active {
+    display: block;
   }
   .meal-grid {
     display: grid;
@@ -477,10 +514,18 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
   function setActiveDay(item, index) {
     var panels = item.querySelectorAll(".day-panel");
+    var activePanel = null;
     panels.forEach(function (p) {
-      p.classList.toggle("active", parseInt(p.dataset.index, 10) === index);
+      var isActive = parseInt(p.dataset.index, 10) === index;
+      p.classList.toggle("active", isActive);
+      if (isActive) activePanel = p;
     });
     item.dataset.currentIndex = index;
+
+    var label = item.querySelector(".date-pill-label");
+    if (label && activePanel) {
+      label.textContent = activePanel.dataset.label || "";
+    }
 
     var dates = JSON.parse(item.dataset.dates || "[]");
     var prevBtn = item.querySelector(".prev-btn");
