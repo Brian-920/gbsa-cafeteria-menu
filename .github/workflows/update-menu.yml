@@ -1,0 +1,56 @@
+name: "구내식당 식단표 자동 업데이트"
+
+# 매주 월요일 07:00 KST = 일요일 22:00 UTC (KST는 UTC+9시간)
+# 수동 실행(workflow_dispatch)도 항상 열어둔다 — 테스트/즉시 갱신용
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 22 * * 0"
+
+permissions:
+  contents: write   # gh-pages 브랜치에 배포하기 위해 필요
+
+jobs:
+  update-menu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 의존성 설치
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: 1) 식단표 이미지 스크래핑
+        run: python scripts/scrape_menu.py
+
+      - name: 2) OCR로 구조화 (Claude Vision API)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/ocr_menu.py
+
+      - name: 3) 웹페이지 생성
+        run: python scripts/generate_site.py
+
+      - name: 디버그용 결과물 업로드 (원본 이미지, JSON, 스크린샷)
+        uses: actions/upload-artifact@v4
+        with:
+          name: menu-run-output
+          path: |
+            output/images/
+            output/data/
+          retention-days: 14
+        if: always()
+
+      - name: GitHub Pages로 배포
+        uses: peaceiris/actions-gh-pages@v4
+        if: success()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output/site
