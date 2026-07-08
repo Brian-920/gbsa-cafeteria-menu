@@ -1,63 +1,75 @@
 # GBSA 구내식당 식단표 자동화
 
-카카오톡 채널 3곳(GBSA 구내식당, 경기R&DB센터 구내식당, 나노기술원 가람푸드써비스)의
-최신 게시글에서 식단표 이미지를 자동으로 가져와 OCR로 읽고, 하나의 웹페이지로 정리해
+카카오톡 채널 3곳의 최신 게시글에서 식단표 이미지를 자동으로 가져와 OCR로 읽고,
+과거 기록까지 누적 보관하며, 대한민국 공휴일도 자동 반영하는 웹페이지를
 매주 월요일 오전 7시(KST)에 자동 갱신합니다.
-
-## 1단계 진단 결과 (완료)
-
-- 3개 채널 모두 **로그인 없이, 클라우드 서버(GitHub Actions)에서 접속 가능** 확인됨
-- 최신 게시글의 날짜/제목/이미지가 담긴 HTML 구조 확인 완료 (`div.area_card` 안의 `img.img_thumb`)
 
 ## 파이프라인 구조
 
 ```
-scripts/scrape_menu.py   → 각 채널 최신 글의 식단표 이미지 다운로드 (output/images/)
-scripts/ocr_menu.py       → Claude Vision API로 이미지를 구조화된 JSON으로 변환 (output/data/menu_final.json)
-scripts/generate_site.py  → JSON을 읽어 index.html 생성 (output/site/index.html)
+scripts/scrape_menu.py    → 각 채널 최신 글의 식단표 이미지 다운로드
+scripts/ocr_menu.py        → Gemini Vision API로 이미지를 구조화된 JSON으로 변환
+scripts/merge_archive.py   → 이번 주 결과를 누적 아카이브(data/archive.json)에 병합
+                              + 채널별 예외 규칙 적용 + 공휴일 판정
+scripts/generate_site.py   → data/archive.json을 읽어 최종 웹페이지 생성 (PWA 포함)
+scripts/rules.py           → 채널별 예외 규칙 (중식/석식 분류, 항목 제외, 표시 이름)
+scripts/holiday_utils.py   → 공공데이터포털 API로 대한민국 공휴일 조회
 ```
-
-GitHub Actions 워크플로우(`.github/workflows/update-menu.yml`)가 이 3단계를 순서대로 실행하고,
-결과 웹페이지를 **GitHub Pages**로 자동 배포합니다.
 
 ## 설정 방법 (최초 1회)
 
-### ① Gemini API 키 등록 (OCR에 필요, 무료)
+### ① Gemini API 키 (OCR용, 무료) — 기존과 동일
+Settings → Secrets and variables → Actions → `GEMINI_API_KEY` 등록
+(https://aistudio.google.com/apikey 에서 무료 발급)
 
-1. https://aistudio.google.com/apikey 접속 (구글 계정만 있으면 됨, 신용카드 등록 불필요)
-2. **Create API key** 클릭 → 키 값 복사
-3. 저장소의 **Settings → Secrets and variables → Actions** 이동
-4. **New repository secret** 클릭
-5. Name: `GEMINI_API_KEY`
-6. Value: 방금 복사한 키 값 붙여넣기
-7. **Add secret** 저장
+### ② 공휴일 API 키 (신규, 무료)
 
-> `gemini-2.5-flash` 모델은 무료 할당량이 분당 10회·일 250회 수준으로(2026년 기준, 변동 가능) 이 프로젝트(주 1회, 이미지 3장)에 충분합니다. 참고로 예전에 흔히 쓰이던 `gemini-2.0-flash`는 2026년 3월 단종되어 무료 할당량이 0으로 처리되니 사용하지 않도록 주의하세요.
+1. https://www.data.go.kr 회원가입 (회사 이메일로 가입 가능)
+2. 검색창에 **"특일 정보"** 검색 → **"한국천문연구원_특일 정보"** 오픈API 선택
+3. **활용신청** 클릭 (자동승인, 보통 몇 분~1시간 내 승인)
+4. 승인 후 **마이페이지 → 개발계정**에서 **일반 인증키(Encoding 또는 Decoding)** 확인
+5. GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret
+6. Name: `KOREA_HOLIDAY_API_KEY`, Value: 발급받은 인증키
 
-### ② GitHub Pages 활성화
+> 이 키를 등록 안 해도 전체 시스템은 정상 동작합니다 (공휴일 표시만 안 될 뿐). 나중에 언제든 추가해도 됩니다.
 
-1. 저장소의 **Settings → Pages** 이동
-2. **Build and deployment → Source**를 **Deploy from a branch**로 설정
-3. Branch를 **gh-pages** 로 선택 (워크플로우를 한 번 실행한 뒤에 `gh-pages` 브랜치가 생성됩니다. 처음엔 안 보일 수 있으니, 1번 수동 실행 후 다시 와서 설정)
-4. 저장하면 `https://[깃허브아이디].github.io/gbsa-cafeteria-menu/` 주소로 접속 가능
+## 새로 생긴 기능
 
-## 테스트 실행 방법
+### 1) 과거 메뉴 기록 누적 (백엔드 없이)
+`data/archive.json`이 저장소에 계속 쌓입니다. 매주 실행될 때마다 이번 주 메뉴가
+"추가"되고, 예전 기록은 지워지지 않습니다. 화면의 ‹ › 버튼으로 몇 주 전 메뉴까지도
+계속 거슬러 올라가서 볼 수 있습니다. 별도 데이터베이스나 서버 없이 저장소 파일
+하나로 처리되는 구조라 유지보수 부담이 없습니다.
 
-1. **Actions 탭** → `구내식당 식단표 자동 업데이트` 선택
-2. **Run workflow** 버튼으로 수동 실행
-3. 완료 후:
-   - 실패했다면 실행 로그에서 어느 단계(스크래핑/OCR/사이트생성)에서 막혔는지 확인
-   - 성공했다면 **Artifacts**에서 `menu-run-output`을 받아 다운로드받은 이미지와 OCR 결과 JSON을 확인
-   - `gh-pages` 브랜치가 생겼는지 확인 후, Pages 설정을 완료하면 실제 웹페이지 확인 가능
+### 2) 공휴일 자동 표시
+공공데이터포털의 정부 공식 API로 매주 공휴일 정보를 새로 조회합니다. 이 API는
+정부가 임시공휴일을 지정하면 그 즉시 반영되는 공식 소스이므로, 카카오 채널에
+평소처럼 메뉴가 올라와 있어도 그 날짜가 공휴일이면 저희 화면에서는 메뉴 대신
+"🎉 OO일 (구내식당 미운영일 수 있습니다)"로 자동 대체 표시됩니다.
 
-## 알려진 리스크 / 다음에 확인할 것
+- API 조회가 실패하거나 키가 없으면, 마지막으로 성공했던 캐시(`data/holidays_cache.json`)를
+  그대로 사용해 서비스가 끊기지 않습니다.
 
-- **OCR 정확도**: 표 형식이 복잡하거나 손글씨/공지사항이 섞여 있으면 Claude가 완벽하게 못 읽을 수 있습니다. 실제 실행 결과(JSON)를 보고 프롬프트를 조정해야 할 수 있습니다.
-- **이미지 다운로드 차단 가능성**: `k.kakaocdn.net` 이미지 서버가 Referer 헤더 없이는 핫링크를 차단할 수 있어 코드에 Referer 헤더를 추가해뒀지만, 실제로 될지는 첫 실행에서 확인이 필요합니다.
-- **채널 구조 변경**: 카카오가 페이지 구조(class명 등)를 바꾸면 스크래핑이 깨질 수 있습니다. 이 경우 `scripts/scrape_menu.py`의 셀렉터를 다시 진단해야 합니다.
-- **무료 할당량 초과 가능성**: 거의 없지만, 혹시 Google이 무료 정책을 바꾸거나 할당량을 조정할 수 있으니 aistudio.google.com에서 가끔 상태를 확인하시는 걸 권장합니다.
+### 3) 모바일 홈 화면 추가
+- **안드로이드**: 방문 시 하단에 "홈 화면에 추가" 배너가 뜨고, 버튼을 누르면 바로 설치됩니다.
+- **iOS(아이폰)**: 기술적 제약으로 자동 설치는 불가능해서, 대신 "공유 버튼 → 홈 화면에
+  추가를 눌러주세요"라는 안내 배너가 뜹니다.
+- 한번 닫은 사용자에게는 다시 안 뜹니다 (브라우저에 저장됨).
 
-## 실행 후 결과 공유해주세요
+## 테스트 실행 방법 (기존과 동일)
 
-첫 수동 실행 후 성공/실패 여부와 (가능하면) Artifacts 안의 `menu_final.json` 내용을 공유해주시면,
-OCR 품질이나 사이트 디자인을 다음 단계에서 다듬어드리겠습니다.
+Actions 탭 → `구내식당 식단표 자동 업데이트` → Run workflow
+
+이번엔 스텝이 하나 늘어서(아카이브 병합), 완료 후 저장소에 `data/archive.json`
+파일이 자동으로 커밋되는 것도 함께 확인해보세요 (저장소 커밋 목록에
+"chore: 식단 아카이브 자동 갱신" 커밋이 생깁니다).
+
+## 알려진 리스크 / 참고사항
+
+- 공휴일 API는 무료지만 하루 호출 한도가 있습니다(보통 1000회/일 수준). 이 프로젝트는
+  주 1회, 월 단위로 최대 24번(2개년 × 12개월) 호출하는 정도라 문제없습니다.
+- `data/archive.json`은 계속 커집니다. 몇 년 단위로 쌓이면 파일이 커질 수 있는데,
+  텍스트 JSON이라 수 년 치가 쌓여도 수 MB 수준이라 크게 부담되지 않습니다. 필요시
+  "N년 이전 데이터는 별도 파일로 분리" 같은 정리도 나중에 가능합니다.
+- 공휴일 판정은 매주 새로 스크래핑한 날짜에 대해서만 적용됩니다. 과거에 이미 저장된
+  기록의 공휴일 여부는 그 당시 조회 결과 그대로 유지됩니다.

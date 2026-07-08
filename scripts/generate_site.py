@@ -1,151 +1,26 @@
 """
-[4단계] 웹페이지 생성 스크립트 (v2 — SaaS 스타일 + 아코디언 + 날짜 네비게이션)
+[6단계] 웹페이지 생성 스크립트 (v3 — 아카이브 기반 렌더링 + PWA + 공휴일 표시)
 
-요구사항 반영:
-- SaaS 스타일 디자인 (카드형, 여백감, 부드러운 그림자)
-- 건물별(구내식당별) 아코디언, 기본값은 닫힌 상태
-- 아코디언을 열면 "오늘(PC 날짜) 기준" 하루치 메뉴만 표시
-- '<' '>' 버튼으로 날짜 이동 (좌우 하루씩)
-- PC 날짜가 이번 주 식단 범위를 벗어나면(더 미래) 가장 최근 제공 가능한 날짜로 표시
-- 중식/석식을 별도 박스로 분리
-- 아코디언 헤더에는 건물명(구내식당명)만 표기, 부가 설명 없음
+이 스크립트는 이제 순수 "렌더러"다. 분류/예외처리/공휴일 판정은 모두
+merge_archive.py에서 끝내고, data/archive.json에 정리된 결과만 그림으로 그린다.
 
-날짜 판별은 "PC(브라우저) 날짜" 기준이어야 하므로, 서버(Python)에서는 각 날짜를
-MM-DD 형식으로 정규화해서 데이터만 만들어 넣고, 실제 "오늘이 며칠인지" 비교/이동
-로직은 전부 클라이언트 JS에서 처리한다.
+추가된 것:
+- data/archive.json 전체 날짜를 대상으로 ‹ › 네비게이션 (이번 주만이 아님)
+- is_holiday인 날은 메뉴 대신 공휴일명 배너 표시
+- PWA 설치 배너 (안드로이드: 실제 설치 버튼 / iOS: 안내 팝업)
+- assets/icons를 output/site로 복사, manifest.json 생성
 """
 
 import json
-import re
-from datetime import date, datetime, timedelta, timezone
+import shutil
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-DATA_DIR = Path(__file__).parent.parent / "output" / "data"
+ARCHIVE_PATH = Path(__file__).parent.parent / "data" / "archive.json"
 SITE_DIR = Path(__file__).parent.parent / "output" / "site"
+ASSETS_DIR = Path(__file__).parent.parent / "assets"
 
 KST = timezone(timedelta(hours=9))
-
-WEEKDAY_KR = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"]
-
-DATE_PATTERN = re.compile(r"(\d{1,2})\s*월\s*(\d{1,2})\s*일")
-MMDD_PATTERN = re.compile(r"^\d{2}-\d{2}$")
-
-DINNER_KEYWORDS = ["석식", "저녁"]
-
-# 채널별 예외 규칙: 카카오 채널마다 표 양식이 고정되어 있어(관리자가 매주 같은 틀에 메뉴만 교체),
-# 그룹명만으로는 중식/석식이 구분 안 되는 경우를 여기서 명시적으로 처리한다.
-# 예) 경기R&DB센터는 "일반식"이라는 이름으로 되어 있지만 실제로는 석식 메뉴다.
-CHANNEL_DINNER_GROUP_OVERRIDE = {
-    "rdb_center": {"일반식"},
-}
-
-# 채널별로 특정 그룹에서 매번 잘못 섞여 들어오는 항목을 제외 처리.
-# 예) 경기R&DB센터의 "음료" 그룹은 표 구조상 "현미밥"이 같이 딸려 들어오는데
-#     실제로는 "후식차, 숭늉"만 음료 항목이다.
-CHANNEL_GROUP_ITEM_EXCLUDE = {
-    "rdb_center": {
-        "음료": {"현미밥"},
-    },
-}
-
-# 아코디언에 표시할 건물/구내식당 이름을 여기서 최종적으로 고정한다.
-# (OCR/스크래핑 단계의 label과 무관하게 항상 이 이름으로 표시됨)
-DISPLAY_LABEL_OVERRIDE = {
-    "nano_gaeram": "한국나노기술원 구내식당",
-}
-
-
-def extract_date_iso(day, fallback_year):
-    """day 딕셔너리에서 MM-DD 형식의 날짜 문자열을 뽑아낸다.
-    1) OCR이 'date' 필드를 MM-DD로 정확히 줬으면 그대로 사용
-    2) 아니면 day_label 텍스트에서 '7월 6일' 같은 패턴을 정규식으로 추출
-    """
-    raw_date = (day.get("date") or "").strip()
-    if MMDD_PATTERN.match(raw_date):
-        return raw_date
-
-    label = day.get("day_label", "")
-    m = DATE_PATTERN.search(label)
-    if m:
-        month, dom = int(m.group(1)), int(m.group(2))
-        return f"{month:02d}-{dom:02d}"
-
-    return None
-
-
-def classify_meal_type(channel_name, group_name):
-    name = (group_name or "").strip()
-    override_set = CHANNEL_DINNER_GROUP_OVERRIDE.get(channel_name, set())
-    if name in override_set:
-        return "dinner"
-    if any(k in name for k in DINNER_KEYWORDS):
-        return "dinner"
-    return "lunch"
-
-
-def build_channel_data(entry, fallback_year):
-    name = entry.get("name")
-    label = DISPLAY_LABEL_OVERRIDE.get(name, entry.get("label", name))
-    status = entry.get("status")
-
-    channel = {
-        "name": name,
-        "label": label,
-        "status": status,
-        "post_url": entry.get("post_url"),
-        "days": [],
-    }
-
-    if status != "success":
-        channel["error_message"] = {
-            "skipped_no_image": "최신 게시글에서 이미지를 찾지 못했습니다.",
-            "error": f"처리 중 오류가 발생했습니다: {entry.get('error', '')}",
-        }.get(status, "정보를 불러오지 못했습니다.")
-        return channel
-
-    menu = entry.get("menu", {})
-
-    days_out = []
-    for day in menu.get("days", []):
-        date_iso = extract_date_iso(day, fallback_year)
-        if date_iso is None:
-            weekday_label = day.get("day_label", "")
-        else:
-            month, dom = map(int, date_iso.split("-"))
-            try:
-                wd = date(fallback_year, month, dom).weekday()
-                weekday_label = f"{WEEKDAY_KR[wd]} · {month}월 {dom}일"
-            except ValueError:
-                weekday_label = day.get("day_label", "")
-
-        lunch_groups = []
-        dinner_groups = []
-        for g in day.get("menu_groups", []):
-            group_name = g.get("group_name", "")
-            bucket = classify_meal_type(name, group_name)
-            target = dinner_groups if bucket == "dinner" else lunch_groups
-
-            items = g.get("items", [])
-            exclude_set = CHANNEL_GROUP_ITEM_EXCLUDE.get(name, {}).get(group_name, set())
-            if exclude_set:
-                items = [it for it in items if it not in exclude_set]
-
-            target.append({
-                "group_name": group_name,
-                "items": items,
-            })
-
-        days_out.append({
-            "date_iso": date_iso,
-            "label": weekday_label,
-            "lunch_groups": lunch_groups,
-            "dinner_groups": dinner_groups,
-        })
-
-    days_out.sort(key=lambda d: d["date_iso"] or "99-99")
-    channel["days"] = days_out
-    return channel
-
 
 BUILDING_ICON = {
     "gbsa": "🏢",
@@ -160,16 +35,14 @@ def render_meal_box(title, icon, groups):
     else:
         parts = []
         for g in groups:
-            gname = g["group_name"]
-            items = g["items"]
+            gname = g.get("group_name", "")
+            items = g.get("items", [])
             if not items:
                 continue
             items_html = "".join(f"<li>{i}</li>" for i in items)
             show_gname = gname and gname not in ("메뉴",)
             gname_html = f"<div class='group-name'>{gname}</div>" if show_gname else ""
-            parts.append(
-                f'<div class="menu-group">{gname_html}<ul class="items">{items_html}</ul></div>'
-            )
+            parts.append(f'<div class="menu-group">{gname_html}<ul class="items">{items_html}</ul></div>')
         body = "".join(parts) if parts else '<p class="empty-meal">정보 없음</p>'
 
     return f"""
@@ -181,28 +54,35 @@ def render_meal_box(title, icon, groups):
 
 
 def render_day_panel(day, index):
-    lunch_html = render_meal_box("중식", "🍚", day["lunch_groups"])
-    dinner_html = render_meal_box("석식", "🌙", day["dinner_groups"])
-    label_attr = day['label'].replace('"', '&quot;')
+    label = f"{day['weekday_label']} · {int(day['date'][5:7])}월 {int(day['date'][8:10])}일"
+    label_attr = label.replace('"', "&quot;")
+
+    if day.get("is_holiday"):
+        holiday_name = day.get("holiday_name") or "공휴일"
+        content = f"""
+        <div class="holiday-banner">
+          🎉 <strong>{holiday_name}</strong>
+          <div class="holiday-sub">공휴일로 구내식당 미운영일 수 있습니다</div>
+        </div>
+        """
+    else:
+        lunch_html = render_meal_box("중식", "🍚", day.get("lunch_groups", []))
+        dinner_html = render_meal_box("석식", "🌙", day.get("dinner_groups", []))
+        content = f'<div class="meal-grid">{lunch_html}{dinner_html}</div>'
+
     return f"""
-    <div class="day-panel" data-index="{index}" data-date="{day['date_iso'] or ''}" data-label="{label_attr}">
-      <div class="meal-grid">
-        {lunch_html}
-        {dinner_html}
-      </div>
+    <div class="day-panel" data-index="{index}" data-date="{day['date']}" data-label="{label_attr}">
+      {content}
     </div>
     """
 
 
-def render_channel_accordion(channel, index):
-    icon = BUILDING_ICON.get(channel["name"], "🍽️")
-    label = channel["label"]
+def render_channel_accordion(channel_name, channel, index):
+    icon = BUILDING_ICON.get(channel_name, "🍽️")
+    label = channel.get("label", channel_name)
+    days = sorted(channel.get("days", {}).values(), key=lambda d: d["date"])
 
-    if channel["status"] != "success":
-        post_link_html = (
-            f'<a class="source-link" href="{channel["post_url"]}" target="_blank">카카오톡 채널에서 직접 확인 →</a>'
-            if channel.get("post_url") else ""
-        )
+    if not days:
         return f"""
     <div class="accordion-item">
       <button type="button" class="accordion-header" disabled>
@@ -211,23 +91,22 @@ def render_channel_accordion(channel, index):
       </button>
       <div class="accordion-panel-wrap">
         <div class="accordion-panel error-panel">
-          <p class="error-msg">⚠️ {channel.get('error_message', '정보를 불러오지 못했습니다.')}</p>
-          {post_link_html}
+          <p class="error-msg">⚠️ 아직 수집된 메뉴 정보가 없습니다.</p>
         </div>
       </div>
     </div>
     """
 
-    days = channel["days"]
-    dates_json = json.dumps([d["date_iso"] for d in days], ensure_ascii=False)
+    dates_json = json.dumps([d["date"] for d in days], ensure_ascii=False)
     days_html = "".join(render_day_panel(days[i], i) for i in range(len(days)))
+    post_url = channel.get("post_url")
     source_html = (
-        f'<a class="source-link" href="{channel["post_url"]}" target="_blank">원본 게시글 보기 →</a>'
-        if channel.get("post_url") else ""
+        f'<a class="source-link" href="{post_url}" target="_blank">원본 게시글 보기 →</a>'
+        if post_url else ""
     )
 
     return f"""
-    <div class="accordion-item" data-channel="{channel['name']}" data-dates='{dates_json}'>
+    <div class="accordion-item" data-channel="{channel_name}" data-dates='{dates_json}'>
       <button type="button" class="accordion-header">
         <span class="accordion-title">{icon} {label}</span>
         <span class="chevron">›</span>
@@ -255,6 +134,12 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>광교테크노밸리 구내식당 식단표</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#1C4692">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="구내식당 식단표">
 <style>
   :root {
     --brand: #1C4692;
@@ -282,13 +167,11 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     padding: 24px 16px 60px;
   }
   @media (min-width: 900px) {
-    .page {
-      max-width: 1100px;
-    }
+    .page { max-width: 1100px; }
   }
   .top-bar {
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
   .top-bar h1 {
     font-size: 19px;
@@ -299,6 +182,37 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
   .top-bar .updated {
     font-size: 12.5px;
     color: var(--muted);
+  }
+  .install-banner {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 12.5px;
+  }
+  .install-banner.show { display: flex; }
+  .install-banner .msg { color: var(--text); line-height: 1.5; }
+  .install-banner button {
+    flex: 0 0 auto;
+    background: var(--brand);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .install-banner .dismiss {
+    background: none;
+    color: var(--muted);
+    padding: 8px 6px;
   }
   .accordion {
     display: flex;
@@ -352,19 +266,13 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     overflow: hidden;
     transition: max-height 0.3s ease;
   }
-  .accordion-panel {
-    padding: 0 20px 20px;
-  }
-  .error-panel {
+  .accordion-panel, .error-panel {
     padding: 0 20px 20px;
   }
   .error-msg {
     color: #c0392b;
     font-size: 13.5px;
     margin: 0 0 8px;
-  }
-  .channel-notice {
-    display: none;
   }
   .date-pill-row {
     display: flex;
@@ -386,13 +294,8 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     cursor: pointer;
     transition: background 0.15s ease;
   }
-  .nav-btn:hover {
-    background: #eef2fb;
-  }
-  .nav-btn:disabled {
-    opacity: 0.3;
-    cursor: default;
-  }
+  .nav-btn:hover { background: #eef2fb; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
   .date-pill-label {
     flex: 1 1 auto;
     max-width: 220px;
@@ -404,24 +307,16 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     border-radius: 10px;
     padding: 8px 0;
   }
-  .date-viewport {
-    position: relative;
-  }
-  .day-panel {
-    display: none;
-  }
-  .day-panel.active {
-    display: block;
-  }
+  .date-viewport { position: relative; }
+  .day-panel { display: none; }
+  .day-panel.active { display: block; }
   .meal-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
   @media (max-width: 380px) {
-    .meal-grid {
-      grid-template-columns: 1fr;
-    }
+    .meal-grid { grid-template-columns: 1fr; }
   }
   .meal-box {
     border: 1px solid var(--border);
@@ -432,15 +327,10 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
   .meal-box-title {
     font-size: 12.5px;
     font-weight: 700;
-    color: var(--text);
     margin-bottom: 8px;
   }
-  .menu-group {
-    margin-bottom: 8px;
-  }
-  .menu-group:last-child {
-    margin-bottom: 0;
-  }
+  .menu-group { margin-bottom: 8px; }
+  .menu-group:last-child { margin-bottom: 0; }
   .group-name {
     font-size: 11.5px;
     font-weight: 600;
@@ -452,12 +342,21 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     padding-left: 14px;
     font-size: 12px;
     line-height: 1.55;
-    color: var(--text);
   }
-  .empty-meal {
+  .empty-meal { font-size: 12px; color: var(--muted); margin: 0; }
+  .holiday-banner {
+    text-align: center;
+    padding: 28px 12px;
+    background: #fff7ed;
+    border: 1px dashed #f3b866;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    color: #9a5b12;
+  }
+  .holiday-sub {
     font-size: 12px;
-    color: var(--muted);
-    margin: 0;
+    color: #b07a3a;
+    margin-top: 6px;
   }
   .source-link {
     display: inline-block;
@@ -466,9 +365,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     color: var(--brand-light);
     text-decoration: none;
   }
-  .source-link:hover {
-    text-decoration: underline;
-  }
+  .source-link:hover { text-decoration: underline; }
   footer {
     text-align: center;
     font-size: 11px;
@@ -485,6 +382,12 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     <div class="updated">마지막 업데이트: __UPDATED_AT__</div>
   </div>
 
+  <div id="installBanner" class="install-banner">
+    <div class="msg" id="installMsg"></div>
+    <button type="button" id="installBtn" style="display:none;">홈 화면에 추가</button>
+    <button type="button" class="dismiss" id="installDismiss">닫기</button>
+  </div>
+
   <div class="accordion">
     __ACCORDION_HTML__
   </div>
@@ -498,13 +401,13 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 (function () {
   function pad(n) { return String(n).padStart(2, "0"); }
 
-  function todayMMDD() {
+  function todayISO() {
     var d = new Date();
-    return pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
   }
 
   function getInitialIndex(dates) {
-    var t = todayMMDD();
+    var t = todayISO();
     var idx = dates.indexOf(t);
     if (idx !== -1) return idx;
     if (dates.length === 0) return -1;
@@ -523,9 +426,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     item.dataset.currentIndex = index;
 
     var label = item.querySelector(".date-pill-label");
-    if (label && activePanel) {
-      label.textContent = activePanel.dataset.label || "";
-    }
+    if (label && activePanel) label.textContent = activePanel.dataset.label || "";
 
     var dates = JSON.parse(item.dataset.dates || "[]");
     var prevBtn = item.querySelector(".prev-btn");
@@ -538,19 +439,13 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     var wrap = item.querySelector(".accordion-panel-wrap");
     var panel = item.querySelector(".accordion-panel, .error-panel");
     if (wrap && panel) {
-      wrap.style.maxHeight = item.classList.contains("open")
-        ? panel.scrollHeight + "px"
-        : "0px";
+      wrap.style.maxHeight = item.classList.contains("open") ? panel.scrollHeight + "px" : "0px";
     }
   }
 
   document.querySelectorAll(".accordion-item").forEach(function (item) {
     var dates = JSON.parse(item.dataset.dates || "[]");
-
-    if (dates.length > 0) {
-      var initial = getInitialIndex(dates);
-      setActiveDay(item, initial);
-    }
+    if (dates.length > 0) setActiveDay(item, getInitialIndex(dates));
 
     var header = item.querySelector(".accordion-header");
     if (header && !header.disabled) {
@@ -562,25 +457,18 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
     var prevBtn = item.querySelector(".prev-btn");
     var nextBtn = item.querySelector(".next-btn");
-
     if (prevBtn) {
       prevBtn.addEventListener("click", function (e) {
         e.stopPropagation();
         var cur = parseInt(item.dataset.currentIndex || "0", 10);
-        if (cur > 0) {
-          setActiveDay(item, cur - 1);
-          recalcHeight(item);
-        }
+        if (cur > 0) { setActiveDay(item, cur - 1); recalcHeight(item); }
       });
     }
     if (nextBtn) {
       nextBtn.addEventListener("click", function (e) {
         e.stopPropagation();
         var cur = parseInt(item.dataset.currentIndex || "0", 10);
-        if (cur < dates.length - 1) {
-          setActiveDay(item, cur + 1);
-          recalcHeight(item);
-        }
+        if (cur < dates.length - 1) { setActiveDay(item, cur + 1); recalcHeight(item); }
       });
     }
   });
@@ -588,21 +476,80 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
   window.addEventListener("resize", function () {
     document.querySelectorAll(".accordion-item.open").forEach(recalcHeight);
   });
+
+  // ---- PWA 홈 화면 추가 배너 ----
+  var banner = document.getElementById("installBanner");
+  var msg = document.getElementById("installMsg");
+  var btn = document.getElementById("installBtn");
+  var dismiss = document.getElementById("installDismiss");
+  var deferredPrompt = null;
+
+  var DISMISS_KEY = "gbsa_menu_install_dismissed";
+  if (localStorage.getItem(DISMISS_KEY)) {
+    banner.classList.remove("show");
+  } else {
+    var isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    var isInStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+
+    if (!isInStandalone) {
+      if (isIOS) {
+        msg.textContent = "홈 화면에 추가하면 앱처럼 빠르게 열 수 있어요. 공유 버튼 → \\"홈 화면에 추가\\"를 눌러주세요.";
+        banner.classList.add("show");
+      } else {
+        window.addEventListener("beforeinstallprompt", function (e) {
+          e.preventDefault();
+          deferredPrompt = e;
+          msg.textContent = "홈 화면에 추가하면 앱처럼 빠르게 열 수 있어요.";
+          btn.style.display = "inline-block";
+          banner.classList.add("show");
+        });
+      }
+    }
+  }
+
+  if (btn) {
+    btn.addEventListener("click", function () {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.finally(function () {
+          banner.classList.remove("show");
+        });
+      }
+    });
+  }
+  if (dismiss) {
+    dismiss.addEventListener("click", function () {
+      banner.classList.remove("show");
+      try { localStorage.setItem(DISMISS_KEY, "1"); } catch (e) {}
+    });
+  }
 })();
 </script>
 </body>
 </html>
 """
 
+MANIFEST_JSON = {
+    "name": "광교테크노밸리 구내식당 식단표",
+    "short_name": "구내식당 식단표",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#f6f7fb",
+    "theme_color": "#1C4692",
+    "icons": [
+        {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+        {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    ],
+}
 
-def build_html(menu_outputs):
-    now_kst = datetime.now(KST)
-    now_str = now_kst.strftime("%Y년 %m월 %d일 %H:%M (KST)")
-    fallback_year = now_kst.year
 
-    channels = [build_channel_data(e, fallback_year) for e in menu_outputs]
+def build_html(archive: dict) -> str:
+    now_str = datetime.now(KST).strftime("%Y년 %m월 %d일 %H:%M (KST)")
+    channel_order = ["gbsa", "rdb_center", "nano_gaeram"]
+    ordered_names = [n for n in channel_order if n in archive] + [n for n in archive if n not in channel_order]
+
     accordion_html = "".join(
-        render_channel_accordion(c, i) for i, c in enumerate(channels)
+        render_channel_accordion(name, archive[name], i) for i, name in enumerate(ordered_names)
     )
 
     html = PAGE_TEMPLATE
@@ -611,17 +558,30 @@ def build_html(menu_outputs):
     return html
 
 
+def copy_static_assets():
+    icons_src = ASSETS_DIR / "icons"
+    icons_dst = SITE_DIR / "icons"
+    if icons_src.exists():
+        icons_dst.mkdir(parents=True, exist_ok=True)
+        for f in icons_src.glob("*.png"):
+            shutil.copy(f, icons_dst / f.name)
+
+    (SITE_DIR / "manifest.json").write_text(
+        json.dumps(MANIFEST_JSON, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
 def main():
-    menu_final_path = DATA_DIR / "menu_final.json"
-    if not menu_final_path.exists():
-        print("menu_final.json이 없습니다. ocr_menu.py를 먼저 실행하세요.")
+    if not ARCHIVE_PATH.exists():
+        print("data/archive.json이 없습니다. merge_archive.py를 먼저 실행하세요.")
         return
 
-    menu_outputs = json.loads(menu_final_path.read_text(encoding="utf-8"))
-    html = build_html(menu_outputs)
+    archive = json.loads(ARCHIVE_PATH.read_text(encoding="utf-8"))
+    html = build_html(archive)
 
     SITE_DIR.mkdir(parents=True, exist_ok=True)
     (SITE_DIR / "index.html").write_text(html, encoding="utf-8")
+    copy_static_assets()
     print(f"사이트 생성 완료: {SITE_DIR / 'index.html'}")
 
 
