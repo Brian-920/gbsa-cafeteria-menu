@@ -22,7 +22,7 @@ from pathlib import Path
 
 import requests
 
-API_URL = "http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo"
+API_URL = "https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo"
 CACHE_PATH = Path(__file__).parent.parent / "data" / "holidays_cache.json"
 
 
@@ -38,7 +38,10 @@ def fetch_holidays_for_year(year: int, api_key: str) -> dict:
             "_type": "json",
         }
         resp = requests.get(API_URL, params=params, timeout=15)
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except requests.HTTPError as e:
+            raise RuntimeError(f"{e} | 응답 본문: {resp.text[:500]}")
 
         content_type = resp.headers.get("Content-Type", "")
         try:
