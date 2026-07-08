@@ -1,5 +1,7 @@
 name: "[진단] 카카오 채널 접근성 테스트"
 
+# 1단계: 우선은 수동 실행(workflow_dispatch)만 열어둔다.
+# 실제로 스크래핑이 가능한 것이 확인된 후에 스케줄(매주 월요일 07:00 KST)을 추가한다.
 on:
   workflow_dispatch: {}
 
@@ -22,7 +24,7 @@ jobs:
 
       - name: 진단 스크립트 실행
         run: python scripts/diagnose.py
-        continue-on-error: true
+        continue-on-error: true  # 일부 채널이 실패해도 다른 채널 결과와 로그는 남긴다
 
       - name: 결과물 업로드 (스크린샷, HTML, 로그)
         uses: actions/upload-artifact@v4
