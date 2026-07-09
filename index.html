@@ -107,6 +107,12 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
     overflow: hidden;
+    transition: border-color 0.15s ease;
+  }
+  @media (min-width: 900px) {
+    .accordion-item.open {
+      border: 2px solid var(--brand-light);
+    }
   }
   .accordion-header {
     width: 100%;
@@ -121,6 +127,21 @@
     color: var(--text);
     cursor: pointer;
     text-align: left;
+  }
+  .accordion-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .title-dot {
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #cbd5e1;
+  }
+  .accordion-item.open .title-dot {
+    background: var(--brand-light);
   }
   .accordion-header:disabled {
     cursor: default;
@@ -257,12 +278,18 @@
   }
   .meal-badge.lunch { background: var(--brand-light); }
   .meal-badge.dinner { background: #1e293b; }
-  .menu-group { margin-bottom: 8px; }
+  .menu-group { margin-bottom: 12px; }
   .menu-group:last-child { margin-bottom: 0; }
+  .menu-group-box {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+    padding: 10px 12px;
+  }
   .group-name {
     font-size: 11.5px;
     font-weight: 700;
-    margin-bottom: 2px;
+    margin-bottom: 6px;
   }
   .group-name.gc-0 { color: #3b82f6; }
   .group-name.gc-1 { color: #059669; }
@@ -311,7 +338,7 @@
 <div class="page">
   <div class="top-bar">
     <h1>🍱 광교테크노밸리 구내식당 식단표</h1>
-    <div class="updated">마지막 업데이트 : 2026-07-09 22:41(KST)</div>
+    <div class="updated">마지막 업데이트 : 2026-07-09 22:53(KST)</div>
   </div>
 
   <div id="installBanner" class="install-banner">
@@ -330,7 +357,7 @@
     
     <div class="accordion-item" data-channel="gbsa" data-dates='["2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10"]'>
       <button type="button" class="accordion-header">
-        <span class="accordion-title">🏢 경기도경제과학진흥원 구내식당</span>
+        <span class="accordion-title"><span class="title-dot"></span>경기도경제과학진흥원 구내식당</span>
         <span class="chevron">›</span>
       </button>
       <div class="accordion-panel-wrap">
@@ -346,12 +373,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><ul class="items"><li>백미밥/잡곡밥</li><li>어묵국</li><li>시금치제육볶음</li><li>얼갈이겉절이</li><li>건파래볶음</li><li>깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>일품식</div><ul class="items"><li>새우포케</li><li>김치콩나물국</li><li>소떡소떡볶음</li><li>건파래볶음</li><li>깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-2'>플러스코너</div><ul class="items"><li>아이스식혜</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><div class="menu-group-box"><ul class="items"><li>백미밥/잡곡밥</li><li>어묵국</li><li>시금치제육볶음</li><li>얼갈이겉절이</li><li>건파래볶음</li><li>깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>일품식</div><div class="menu-group-box"><ul class="items"><li>새우포케</li><li>김치콩나물국</li><li>소떡소떡볶음</li><li>건파래볶음</li><li>깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>플러스코너</div><div class="menu-group-box"><ul class="items"><li>아이스식혜</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>석식</div><ul class="items"><li>석식 미운영</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>석식</div><div class="menu-group-box"><ul class="items"><li>석식 미운영</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -360,12 +387,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><ul class="items"><li>백미밥/잡곡밥</li><li>참치김치찌개</li><li>언양식바싹불고기</li><li>메추리알꽈장조림</li><li>콩나물무침</li><li>깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>일품식</div><ul class="items"><li>치즈불닭덮밥</li><li>도토리묵냉국</li><li>한입핫즈네</li><li>콩나물무침</li><li>단무지</li></ul></div><div class="menu-group"><div class='group-name gc-2'>플러스코너</div><ul class="items"><li>야채샐러드</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><div class="menu-group-box"><ul class="items"><li>백미밥/잡곡밥</li><li>참치김치찌개</li><li>언양식바싹불고기</li><li>메추리알꽈장조림</li><li>콩나물무침</li><li>깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>일품식</div><div class="menu-group-box"><ul class="items"><li>치즈불닭덮밥</li><li>도토리묵냉국</li><li>한입핫즈네</li><li>콩나물무침</li><li>단무지</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>플러스코너</div><div class="menu-group-box"><ul class="items"><li>야채샐러드</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>석식</div><ul class="items"><li>석식 미운영</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>석식</div><div class="menu-group-box"><ul class="items"><li>석식 미운영</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -374,12 +401,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><ul class="items"><li>백미밥/잡곡밥</li><li>근대된장국</li><li>닭살순대볶음</li><li>감자조림</li><li>상추겉절이</li><li>깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>일품식</div><ul class="items"><li>콩국수</li><li>계란볶음밥</li><li>족발야채무침</li><li>배추김치</li><li>골라먹는 아이스크림</li></ul></div><div class="menu-group"><div class='group-name gc-2'>플러스코너</div><ul class="items"><li>야채샐러드</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><div class="menu-group-box"><ul class="items"><li>백미밥/잡곡밥</li><li>근대된장국</li><li>닭살순대볶음</li><li>감자조림</li><li>상추겉절이</li><li>깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>일품식</div><div class="menu-group-box"><ul class="items"><li>콩국수</li><li>계란볶음밥</li><li>족발야채무침</li><li>배추김치</li><li>골라먹는 아이스크림</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>플러스코너</div><div class="menu-group-box"><ul class="items"><li>야채샐러드</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>석식</div><ul class="items"><li>석식 미운영</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>석식</div><div class="menu-group-box"><ul class="items"><li>석식 미운영</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -388,12 +415,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><ul class="items"><li>백미밥/잡곡밥</li><li>들깨미역국</li><li>코다리무조림</li><li>어묵잡채</li><li>오이양파무침</li><li>배추김치</li></ul></div><div class="menu-group"><div class='group-name gc-1'>일품식</div><ul class="items"><li>캔참치비빔밥</li><li>들깨미역국</li><li>야채계란찜</li><li>도시락김</li><li>열무김치</li></ul></div><div class="menu-group"><div class='group-name gc-2'>플러스코너</div><ul class="items"><li>흑임자라떼</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><div class="menu-group-box"><ul class="items"><li>백미밥/잡곡밥</li><li>들깨미역국</li><li>코다리무조림</li><li>어묵잡채</li><li>오이양파무침</li><li>배추김치</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>일품식</div><div class="menu-group-box"><ul class="items"><li>캔참치비빔밥</li><li>들깨미역국</li><li>야채계란찜</li><li>도시락김</li><li>열무김치</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>플러스코너</div><div class="menu-group-box"><ul class="items"><li>흑임자라떼</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>석식</div><ul class="items"><li>석식 미운영</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>석식</div><div class="menu-group-box"><ul class="items"><li>석식 미운영</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -402,12 +429,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><ul class="items"><li>백미밥/잡곡밥</li><li>유채된장국</li><li>돈육숙주볶음</li><li>생깻잎지</li><li>고추된장무침</li><li>배추김치</li></ul></div><div class="menu-group"><div class='group-name gc-1'>일품식</div><ul class="items"><li>소불고기덮밥</li><li>유채된장국</li><li>백목이버섯겨자냉채</li><li>고추된장무침</li><li>깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-2'>플러스코너</div><ul class="items"><li>아이스미숫가루</li></ul></div><div class="menu-group"><div class='group-name gc-3'>비빔코너</div><ul class="items"><li>고추장&참기름&기본양념</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><div class="menu-group-box"><ul class="items"><li>백미밥/잡곡밥</li><li>유채된장국</li><li>돈육숙주볶음</li><li>생깻잎지</li><li>고추된장무침</li><li>배추김치</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>일품식</div><div class="menu-group-box"><ul class="items"><li>소불고기덮밥</li><li>유채된장국</li><li>백목이버섯겨자냉채</li><li>고추된장무침</li><li>깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>플러스코너</div><div class="menu-group-box"><ul class="items"><li>아이스미숫가루</li></ul></div></div><div class="menu-group"><div class='group-name gc-3'>비빔코너</div><div class="menu-group-box"><ul class="items"><li>고추장&참기름&기본양념</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>석식</div><ul class="items"><li>석식 미운영</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>석식</div><div class="menu-group-box"><ul class="items"><li>석식 미운영</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -420,7 +447,7 @@
     
     <div class="accordion-item" data-channel="rdb_center" data-dates='["2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10"]'>
       <button type="button" class="accordion-header">
-        <span class="accordion-title">🏬 경기R&DB센터 구내식당</span>
+        <span class="accordion-title"><span class="title-dot"></span>경기R&DB센터 구내식당</span>
         <span class="chevron">›</span>
       </button>
       <div class="accordion-panel-wrap">
@@ -436,12 +463,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><ul class="items"><li>오징어콩나물찜</li><li>잡채말이어묵볶음</li><li>청경채절이</li><li>순두부백탕</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><ul class="items"><li>유부우동</li><li>닭강정</li><li>콘치즈구이</li><li>오복지무침</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-2'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name gc-3'>음료</div><ul class="items"><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name gc-4'>Take Out</div><ul class="items"><li>카프레제샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><div class="menu-group-box"><ul class="items"><li>오징어콩나물찜</li><li>잡채말이어묵볶음</li><li>청경채절이</li><li>순두부백탕</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><div class="menu-group-box"><ul class="items"><li>유부우동</li><li>닭강정</li><li>콘치즈구이</li><li>오복지무침</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>플러스바</div><div class="menu-group-box"><ul class="items"><li>그린샐러드</li></ul></div></div><div class="menu-group"><div class='group-name gc-3'>음료</div><div class="menu-group-box"><ul class="items"><li>후식차, 숭늉</li></ul></div></div><div class="menu-group"><div class='group-name gc-4'>Take Out</div><div class="menu-group-box"><ul class="items"><li>카프레제샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><ul class="items"><li>열무쭈꾸미비빔밥</li><li>메밀전병</li><li>미역줄기볶음</li><li>우엉조림</li><li>얼갈이된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><div class="menu-group-box"><ul class="items"><li>열무쭈꾸미비빔밥</li><li>메밀전병</li><li>미역줄기볶음</li><li>우엉조림</li><li>얼갈이된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -450,12 +477,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><ul class="items"><li>모듬장조림</li><li>그린빈스버섯볶음</li><li>도토리묵야채무침</li><li>바지락미역국</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><ul class="items"><li>김치볶음밥</li><li>멘치까스*소스</li><li>야채쫄면</li><li>단무지</li><li>바지락미역국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-2'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name gc-3'>음료</div><ul class="items"><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name gc-4'>Take Out</div><ul class="items"><li>훈제연어샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><div class="menu-group-box"><ul class="items"><li>모듬장조림</li><li>그린빈스버섯볶음</li><li>도토리묵야채무침</li><li>바지락미역국</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><div class="menu-group-box"><ul class="items"><li>김치볶음밥</li><li>멘치까스*소스</li><li>야채쫄면</li><li>단무지</li><li>바지락미역국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>플러스바</div><div class="menu-group-box"><ul class="items"><li>그린샐러드</li></ul></div></div><div class="menu-group"><div class='group-name gc-3'>음료</div><div class="menu-group-box"><ul class="items"><li>후식차, 숭늉</li></ul></div></div><div class="menu-group"><div class='group-name gc-4'>Take Out</div><div class="menu-group-box"><ul class="items"><li>훈제연어샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><ul class="items"><li>부대찌개</li><li>야채계란찜</li><li>호박볶음</li><li>양념깻잎지</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><div class="menu-group-box"><ul class="items"><li>부대찌개</li><li>야채계란찜</li><li>호박볶음</li><li>양념깻잎지</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -464,12 +491,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><ul class="items"><li>짬뽕덮밥</li><li>후르츠만두탕수</li><li>브로콜리볶음</li><li>시금치된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><ul class="items"><li>파채돈불고기</li><li>갓김치들기름막국수</li><li>무나물</li><li>시금치된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-2'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name gc-3'>음료</div><ul class="items"><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name gc-4'>Take Out</div><ul class="items"><li>크래미감자샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><div class="menu-group-box"><ul class="items"><li>짬뽕덮밥</li><li>후르츠만두탕수</li><li>브로콜리볶음</li><li>시금치된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><div class="menu-group-box"><ul class="items"><li>파채돈불고기</li><li>갓김치들기름막국수</li><li>무나물</li><li>시금치된장국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>플러스바</div><div class="menu-group-box"><ul class="items"><li>그린샐러드</li></ul></div></div><div class="menu-group"><div class='group-name gc-3'>음료</div><div class="menu-group-box"><ul class="items"><li>후식차, 숭늉</li></ul></div></div><div class="menu-group"><div class='group-name gc-4'>Take Out</div><div class="menu-group-box"><ul class="items"><li>크래미감자샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><ul class="items"><li>장칼국수</li><li>떡갈비구이</li><li>맛살야채볶음</li><li>양파장아찌</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><div class="menu-group-box"><ul class="items"><li>장칼국수</li><li>떡갈비구이</li><li>맛살야채볶음</li><li>양파장아찌</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -478,12 +505,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><ul class="items"><li>돈육두부조림</li><li>감자채볶음</li><li>청포묵김가루무침</li><li>콩나물국</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><ul class="items"><li>카레라이스</li><li>칼집소시지구이</li><li>크림떡볶이</li><li>콩나물국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-2'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name gc-3'>음료</div><ul class="items"><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name gc-4'>Take Out</div><ul class="items"><li>훈제오리샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><div class="menu-group-box"><ul class="items"><li>돈육두부조림</li><li>감자채볶음</li><li>청포묵김가루무침</li><li>콩나물국</li><li>흑미밥,백미밥</li><li>포기김치,깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><div class="menu-group-box"><ul class="items"><li>카레라이스</li><li>칼집소시지구이</li><li>크림떡볶이</li><li>콩나물국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>플러스바</div><div class="menu-group-box"><ul class="items"><li>그린샐러드</li></ul></div></div><div class="menu-group"><div class='group-name gc-3'>음료</div><div class="menu-group-box"><ul class="items"><li>후식차, 숭늉</li></ul></div></div><div class="menu-group"><div class='group-name gc-4'>Take Out</div><div class="menu-group-box"><ul class="items"><li>훈제오리샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><ul class="items"><li>돼지장터국밥</li><li>김치전</li><li>계란장조림</li><li>부추겉절이</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>일반식</div><div class="menu-group-box"><ul class="items"><li>돼지장터국밥</li><li>김치전</li><li>계란장조림</li><li>부추겉절이</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -492,7 +519,7 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><ul class="items"><li>부타동</li><li>미니돈까스</li><li>새송이버섯볶음</li><li>다시마무국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><ul class="items"><li>안동찜닭</li><li>사각어묵볶음</li><li>아삭이고추쌈장무침</li><li>다시마무국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-2'>플러스바</div><ul class="items"><li>그린샐러드</li></ul></div><div class="menu-group"><div class='group-name gc-3'>음료</div><ul class="items"><li>후식차, 숭늉</li></ul></div><div class="menu-group"><div class='group-name gc-4'>Take Out</div><ul class="items"><li>닭가슴살샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><div class="menu-group-box"><ul class="items"><li>부타동</li><li>미니돈까스</li><li>새송이버섯볶음</li><li>다시마무국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><div class="menu-group-box"><ul class="items"><li>안동찜닭</li><li>사각어묵볶음</li><li>아삭이고추쌈장무침</li><li>다시마무국</li><li>백미밥</li><li>포기김치,깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>플러스바</div><div class="menu-group-box"><ul class="items"><li>그린샐러드</li></ul></div></div><div class="menu-group"><div class='group-name gc-3'>음료</div><div class="menu-group-box"><ul class="items"><li>후식차, 숭늉</li></ul></div></div><div class="menu-group"><div class='group-name gc-4'>Take Out</div><div class="menu-group-box"><ul class="items"><li>닭가슴살샐러드&드레싱</li><li>한끼슬림팩 or 한끼선식팩</li><li>샌드위치&음료</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
@@ -510,7 +537,7 @@
     
     <div class="accordion-item" data-channel="nano_gaeram" data-dates='["2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10"]'>
       <button type="button" class="accordion-header">
-        <span class="accordion-title">🔬 한국나노기술원 구내식당</span>
+        <span class="accordion-title"><span class="title-dot"></span>한국나노기술원 구내식당</span>
         <span class="chevron">›</span>
       </button>
       <div class="accordion-panel-wrap">
@@ -526,12 +553,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><ul class="items"><li>우렁된장찌개</li><li>쌀밥/잡곡밥</li><li>떡갈비데리야끼볶음</li><li>탕평채</li><li>오복지무침</li><li>포기김치</li></ul></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><ul class="items"><li>지코바치밥</li><li>가쓰오장국</li><li>생선까스*타르S</li><li>브로콜리두부범벅</li><li>콩나물무침</li><li>포기김치</li></ul></div><div class="menu-group"><div class='group-name gc-2'>PLUS</div><ul class="items"><li>그린샐러드/후식차</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><div class="menu-group-box"><ul class="items"><li>우렁된장찌개</li><li>쌀밥/잡곡밥</li><li>떡갈비데리야끼볶음</li><li>탕평채</li><li>오복지무침</li><li>포기김치</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><div class="menu-group-box"><ul class="items"><li>지코바치밥</li><li>가쓰오장국</li><li>생선까스*타르S</li><li>브로콜리두부범벅</li><li>콩나물무침</li><li>포기김치</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>PLUS</div><div class="menu-group-box"><ul class="items"><li>그린샐러드/후식차</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>저녁 (17:30 ~ 18:30)</div><ul class="items"><li>소고기장터국밥(탕)</li><li>쌀밥</li><li>해물완자전</li><li>감자볶음</li><li>숙주나물</li><li>깍두기</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>저녁 (17:30 ~ 18:30)</div><div class="menu-group-box"><ul class="items"><li>소고기장터국밥(탕)</li><li>쌀밥</li><li>해물완자전</li><li>감자볶음</li><li>숙주나물</li><li>깍두기</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -540,12 +567,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><ul class="items"><li>고등어구이</li><li>쌀밥/잡곡밥</li><li>유부김치국</li><li>갈비비빔면</li><li>콩나물무침</li><li>깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><ul class="items"><li>열무돈불백비빔밥</li><li>미역국</li><li>멘치까스</li><li>칼비빔면</li><li>청경채무침</li><li>포기김치</li></ul></div><div class="menu-group"><div class='group-name gc-2'>PLUS</div><ul class="items"><li>그린샐러드/후식차</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><div class="menu-group-box"><ul class="items"><li>고등어구이</li><li>쌀밥/잡곡밥</li><li>유부김치국</li><li>갈비비빔면</li><li>콩나물무침</li><li>깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><div class="menu-group-box"><ul class="items"><li>열무돈불백비빔밥</li><li>미역국</li><li>멘치까스</li><li>칼비빔면</li><li>청경채무침</li><li>포기김치</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>PLUS</div><div class="menu-group-box"><ul class="items"><li>그린샐러드/후식차</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>저녁 (17:30 ~ 18:30)</div><ul class="items"><li>냉모밀국수</li><li>김가루밥</li><li>왕교자만두찜</li><li>누룽지샐러드</li><li>숭늉</li><li>포기김치</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>저녁 (17:30 ~ 18:30)</div><div class="menu-group-box"><ul class="items"><li>냉모밀국수</li><li>김가루밥</li><li>왕교자만두찜</li><li>누룽지샐러드</li><li>숭늉</li><li>포기김치</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -554,12 +581,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><ul class="items"><li>황태설렁탕(탕)</li><li>쌀밥/잡곡밥</li><li>두부&김치</li><li>감자채볶음</li><li>연근흑임자무침</li><li>깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><ul class="items"><li>꼬지어묵라면</li><li>김밥볶음밥</li><li>매콤깐풍육</li><li>숙주*대파</li><li>단무지</li><li>포기김치</li></ul></div><div class="menu-group"><div class='group-name gc-2'>PLUS</div><ul class="items"><li>그린샐러드/후식차</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><div class="menu-group-box"><ul class="items"><li>황태설렁탕(탕)</li><li>쌀밥/잡곡밥</li><li>두부&김치</li><li>감자채볶음</li><li>연근흑임자무침</li><li>깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><div class="menu-group-box"><ul class="items"><li>꼬지어묵라면</li><li>김밥볶음밥</li><li>매콤깐풍육</li><li>숙주*대파</li><li>단무지</li><li>포기김치</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>PLUS</div><div class="menu-group-box"><ul class="items"><li>그린샐러드/후식차</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>저녁 (17:30 ~ 18:30)</div><ul class="items"><li>햄김치볶음밥</li><li>어묵국</li><li>계란후라이</li><li>야채볶음우동</li><li>파래자반</li><li>포기김치</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>저녁 (17:30 ~ 18:30)</div><div class="menu-group-box"><ul class="items"><li>햄김치볶음밥</li><li>어묵국</li><li>계란후라이</li><li>야채볶음우동</li><li>파래자반</li><li>포기김치</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -568,12 +595,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><ul class="items"><li>참치김치찌개</li><li>쌀밥/잡곡밥</li><li>계란찜</li><li>마늘종햄볶음</li><li>들깨무나물</li><li>깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><ul class="items"><li>고추장불고기</li><li>쌀밥/잡곡밥</li><li>시래기국</li><li>마늘종햄볶음</li><li>양배추찜</li><li>포기김치</li></ul></div><div class="menu-group"><div class='group-name gc-2'>PLUS</div><ul class="items"><li>그린샐러드/후식차</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><div class="menu-group-box"><ul class="items"><li>참치김치찌개</li><li>쌀밥/잡곡밥</li><li>계란찜</li><li>마늘종햄볶음</li><li>들깨무나물</li><li>깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><div class="menu-group-box"><ul class="items"><li>고추장불고기</li><li>쌀밥/잡곡밥</li><li>시래기국</li><li>마늘종햄볶음</li><li>양배추찜</li><li>포기김치</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>PLUS</div><div class="menu-group-box"><ul class="items"><li>그린샐러드/후식차</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>저녁 (17:30 ~ 18:30)</div><ul class="items"><li>잔치국수</li><li>추가밥</li><li>오징어초무침</li><li>어묵볶음</li><li>숙주나물</li><li>포기김치</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>저녁 (17:30 ~ 18:30)</div><div class="menu-group-box"><ul class="items"><li>잔치국수</li><li>추가밥</li><li>오징어초무침</li><li>어묵볶음</li><li>숙주나물</li><li>포기김치</li></ul></div></div></div>
     </div>
     </div>
     </div>
@@ -582,12 +609,12 @@
       <div class="meal-grid">
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge lunch">중식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><ul class="items"><li>짜장소스</li><li>쌀밥</li><li>파계란국</li><li>레몬크림만두</li><li>야채피클</li><li>깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><ul class="items"><li>순살감자탕(탕)</li><li>쌀밥/잡곡밥</li><li>메밀전병구이</li><li>한식잡채</li><li>고추무침</li><li>깍두기</li></ul></div><div class="menu-group"><div class='group-name gc-2'>PLUS</div><ul class="items"><li>그린샐러드/후식차</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>A코너</div><div class="menu-group-box"><ul class="items"><li>짜장소스</li><li>쌀밥</li><li>파계란국</li><li>레몬크림만두</li><li>야채피클</li><li>깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-1'>B코너</div><div class="menu-group-box"><ul class="items"><li>순살감자탕(탕)</li><li>쌀밥/잡곡밥</li><li>메밀전병구이</li><li>한식잡채</li><li>고추무침</li><li>깍두기</li></ul></div></div><div class="menu-group"><div class='group-name gc-2'>PLUS</div><div class="menu-group-box"><ul class="items"><li>그린샐러드/후식차</li></ul></div></div></div>
     </div>
     
     <div class="meal-box">
       <div class="meal-box-title"><span class="meal-badge dinner">석식</span></div>
-      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>저녁 (17:30 ~ 18:30)</div><ul class="items"><li>석식미운영</li></ul></div></div>
+      <div class="meal-box-body"><div class="menu-group"><div class='group-name gc-0'>저녁 (17:30 ~ 18:30)</div><div class="menu-group-box"><ul class="items"><li>석식미운영</li></ul></div></div></div>
     </div>
     </div>
     </div>
