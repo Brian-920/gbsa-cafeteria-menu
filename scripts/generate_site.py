@@ -22,12 +22,6 @@ ASSETS_DIR = Path(__file__).parent.parent / "assets"
 
 KST = timezone(timedelta(hours=9))
 
-BUILDING_ICON = {
-    "gbsa": "🏢",
-    "rdb_center": "🏬",
-    "nano_gaeram": "🔬",
-}
-
 
 def strip_meal_prefix(name: str) -> str:
     for prefix in ("중식 ", "석식 "):
@@ -52,7 +46,10 @@ def render_meal_box(title, badge_class, groups):
             display_name = strip_meal_prefix(gname) if show_gname else ""
             color_class = f"gc-{color_idx % 5}"
             gname_html = f"<div class='group-name {color_class}'>{display_name}</div>" if show_gname else ""
-            parts.append(f'<div class="menu-group">{gname_html}<ul class="items">{items_html}</ul></div>')
+            parts.append(
+                f'<div class="menu-group">{gname_html}<div class="menu-group-box">'
+                f'<ul class="items">{items_html}</ul></div></div>'
+            )
             color_idx += 1
         body = "".join(parts) if parts else '<p class="empty-meal">정보 없음</p>'
 
@@ -89,7 +86,6 @@ def render_day_panel(day, index):
 
 
 def render_channel_accordion(channel_name, channel, index):
-    icon = BUILDING_ICON.get(channel_name, "🍽️")
     label = channel.get("label", channel_name)
     days = sorted(channel.get("days", {}).values(), key=lambda d: d["date"])
 
@@ -97,7 +93,7 @@ def render_channel_accordion(channel_name, channel, index):
         return f"""
     <div class="accordion-item">
       <button type="button" class="accordion-header" disabled>
-        <span class="accordion-title">{icon} {label}</span>
+        <span class="accordion-title"><span class="title-dot"></span>{label}</span>
         <span class="chevron">›</span>
       </button>
       <div class="accordion-panel-wrap">
@@ -119,7 +115,7 @@ def render_channel_accordion(channel_name, channel, index):
     return f"""
     <div class="accordion-item" data-channel="{channel_name}" data-dates='{dates_json}'>
       <button type="button" class="accordion-header">
-        <span class="accordion-title">{icon} {label}</span>
+        <span class="accordion-title"><span class="title-dot"></span>{label}</span>
         <span class="chevron">›</span>
       </button>
       <div class="accordion-panel-wrap">
@@ -248,6 +244,12 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
     overflow: hidden;
+    transition: border-color 0.15s ease;
+  }
+  @media (min-width: 900px) {
+    .accordion-item.open {
+      border: 2px solid var(--brand-light);
+    }
   }
   .accordion-header {
     width: 100%;
@@ -262,6 +264,21 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     color: var(--text);
     cursor: pointer;
     text-align: left;
+  }
+  .accordion-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .title-dot {
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #cbd5e1;
+  }
+  .accordion-item.open .title-dot {
+    background: var(--brand-light);
   }
   .accordion-header:disabled {
     cursor: default;
@@ -398,12 +415,18 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
   }
   .meal-badge.lunch { background: var(--brand-light); }
   .meal-badge.dinner { background: #1e293b; }
-  .menu-group { margin-bottom: 8px; }
+  .menu-group { margin-bottom: 12px; }
   .menu-group:last-child { margin-bottom: 0; }
+  .menu-group-box {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+    padding: 10px 12px;
+  }
   .group-name {
     font-size: 11.5px;
     font-weight: 700;
-    margin-bottom: 2px;
+    margin-bottom: 6px;
   }
   .group-name.gc-0 { color: #3b82f6; }
   .group-name.gc-1 { color: #059669; }
