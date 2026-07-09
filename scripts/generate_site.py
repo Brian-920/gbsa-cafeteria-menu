@@ -29,11 +29,19 @@ BUILDING_ICON = {
 }
 
 
-def render_meal_box(title, icon, groups):
+def strip_meal_prefix(name: str) -> str:
+    for prefix in ("중식 ", "석식 "):
+        if name.startswith(prefix):
+            return name[len(prefix):]
+    return name
+
+
+def render_meal_box(title, badge_class, groups):
     if not groups:
         body = '<p class="empty-meal">정보 없음</p>'
     else:
         parts = []
+        color_idx = 0
         for g in groups:
             gname = g.get("group_name", "")
             items = g.get("items", [])
@@ -41,13 +49,16 @@ def render_meal_box(title, icon, groups):
                 continue
             items_html = "".join(f"<li>{i}</li>" for i in items)
             show_gname = gname and gname not in ("메뉴",)
-            gname_html = f"<div class='group-name'>{gname}</div>" if show_gname else ""
+            display_name = strip_meal_prefix(gname) if show_gname else ""
+            color_class = f"gc-{color_idx % 5}"
+            gname_html = f"<div class='group-name {color_class}'>{display_name}</div>" if show_gname else ""
             parts.append(f'<div class="menu-group">{gname_html}<ul class="items">{items_html}</ul></div>')
+            color_idx += 1
         body = "".join(parts) if parts else '<p class="empty-meal">정보 없음</p>'
 
     return f"""
     <div class="meal-box">
-      <div class="meal-box-title">{icon} {title}</div>
+      <div class="meal-box-title"><span class="meal-badge {badge_class}">{title}</span></div>
       <div class="meal-box-body">{body}</div>
     </div>
     """
@@ -66,8 +77,8 @@ def render_day_panel(day, index):
         </div>
         """
     else:
-        lunch_html = render_meal_box("중식", "🍚", day.get("lunch_groups", []))
-        dinner_html = render_meal_box("석식", "🌙", day.get("dinner_groups", []))
+        lunch_html = render_meal_box("중식", "lunch", day.get("lunch_groups", []))
+        dinner_html = render_meal_box("석식", "dinner", day.get("dinner_groups", []))
         content = f'<div class="meal-grid">{lunch_html}{dinner_html}</div>'
 
     return f"""
@@ -142,15 +153,15 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <meta name="apple-mobile-web-app-title" content="구내식당 식단표">
 <style>
   :root {
-    --brand: #1C4692;
-    --brand-light: #00A0DC;
-    --bg: #f6f7fb;
+    --brand: #00288e;
+    --brand-light: #3b82f6;
+    --bg: #f7f9fb;
     --card: #ffffff;
-    --border: #e8eaf0;
-    --text: #16181d;
-    --muted: #8a8f9c;
-    --radius-lg: 20px;
-    --radius-md: 14px;
+    --border: #e2e8f0;
+    --text: #191c1e;
+    --muted: #64748b;
+    --radius-lg: 18px;
+    --radius-md: 12px;
     --shadow: 0 1px 2px rgba(16,24,40,0.04), 0 4px 16px rgba(16,24,40,0.06);
   }
   * { box-sizing: border-box; }
@@ -178,6 +189,10 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     font-weight: 700;
     margin: 0 0 6px;
     letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  @media (max-width: 380px) {
+    .top-bar h1 { font-size: 16px; }
   }
   .top-bar .updated {
     font-size: 12.5px;
@@ -281,6 +296,51 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     gap: 8px;
     margin-bottom: 12px;
   }
+  @media (min-width: 900px) {
+    .date-pill-row { display: none; }
+  }
+  .global-date-bar {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: fit-content;
+    margin: 0 auto 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    padding: 6px;
+  }
+  @media (min-width: 900px) {
+    .global-date-bar { display: flex; }
+  }
+  .global-date-pills {
+    display: flex;
+    gap: 2px;
+  }
+  .global-date-pill {
+    flex: 0 0 auto;
+    border: none;
+    background: none;
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .global-date-pill:hover { background: #eef2fb; }
+  .global-date-pill.active {
+    background: var(--brand);
+    color: #fff;
+  }
+  .global-date-bar .nav-btn {
+    width: 36px;
+    height: 36px;
+  }
   .nav-btn {
     flex: 0 0 auto;
     width: 32px;
@@ -325,18 +385,31 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     background: #fcfcfd;
   }
   .meal-box-title {
-    font-size: 12.5px;
-    font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
+  .meal-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff;
+  }
+  .meal-badge.lunch { background: var(--brand-light); }
+  .meal-badge.dinner { background: #1e293b; }
   .menu-group { margin-bottom: 8px; }
   .menu-group:last-child { margin-bottom: 0; }
   .group-name {
     font-size: 11.5px;
-    font-weight: 600;
-    color: var(--brand-light);
+    font-weight: 700;
     margin-bottom: 2px;
   }
+  .group-name.gc-0 { color: #3b82f6; }
+  .group-name.gc-1 { color: #059669; }
+  .group-name.gc-2 { color: #7c3aed; }
+  .group-name.gc-3 { color: #d97706; }
+  .group-name.gc-4 { color: #e11d48; }
   ul.items {
     margin: 0;
     padding-left: 14px;
@@ -379,13 +452,19 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <div class="page">
   <div class="top-bar">
     <h1>🍱 광교테크노밸리 구내식당 식단표</h1>
-    <div class="updated">마지막 업데이트: __UPDATED_AT__</div>
+    <div class="updated">마지막 업데이트 : __UPDATED_AT__</div>
   </div>
 
   <div id="installBanner" class="install-banner">
     <div class="msg" id="installMsg"></div>
     <button type="button" id="installBtn" style="display:none;">홈 화면에 추가</button>
     <button type="button" class="dismiss" id="installDismiss">닫기</button>
+  </div>
+
+  <div class="global-date-bar" id="globalDateBar">
+    <button type="button" class="nav-btn" id="globalPrev" aria-label="이전 날짜">‹</button>
+    <div class="global-date-pills" id="globalDatePills"></div>
+    <button type="button" class="nav-btn" id="globalNext" aria-label="다음 날짜">›</button>
   </div>
 
   <div class="accordion">
@@ -489,6 +568,100 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     document.querySelectorAll(".accordion-item.open").forEach(recalcHeight);
   });
 
+  // ---- 데스크톱 공용 날짜 선택바 (모든 건물에 동일 날짜 적용, 창(window) 슬라이딩) ----
+  var WEEKDAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
+
+  function formatPillLabel(dateStr) {
+    var p = dateStr.split("-").map(Number);
+    var dt = new Date(p[0], p[1] - 1, p[2]);
+    return p[1] + "월 " + p[2] + "일 (" + WEEKDAY_KR[dt.getDay()] + ")";
+  }
+
+  function unionDates() {
+    var seen = {};
+    var all = [];
+    document.querySelectorAll(".accordion-item[data-dates]").forEach(function (item) {
+      JSON.parse(item.dataset.dates || "[]").forEach(function (d) {
+        if (!seen[d]) { seen[d] = true; all.push(d); }
+      });
+    });
+    return all.sort();
+  }
+
+  var ALL_DATES = unionDates();
+  var WINDOW_SIZE = 5;
+  var windowStart = 0;
+  var globalActiveDate = null;
+
+  var globalBar = document.getElementById("globalDateBar");
+  var globalPills = document.getElementById("globalDatePills");
+  var globalPrevBtn = document.getElementById("globalPrev");
+  var globalNextBtn = document.getElementById("globalNext");
+
+  function applyGlobalDate(dateStr) {
+    document.querySelectorAll(".accordion-item[data-dates]").forEach(function (item) {
+      var dates = JSON.parse(item.dataset.dates || "[]");
+      var idx = dates.indexOf(dateStr);
+      if (idx !== -1) {
+        setActiveDay(item, idx);
+        recalcHeight(item);
+      }
+    });
+  }
+
+  function renderGlobalBar() {
+    if (!globalBar || ALL_DATES.length === 0) return;
+    var maxStart = Math.max(0, ALL_DATES.length - WINDOW_SIZE);
+    if (windowStart > maxStart) windowStart = maxStart;
+    if (windowStart < 0) windowStart = 0;
+
+    var slice = ALL_DATES.slice(windowStart, windowStart + WINDOW_SIZE);
+    globalPills.innerHTML = slice
+      .map(function (d) {
+        var active = d === globalActiveDate ? " active" : "";
+        return '<button type="button" class="global-date-pill' + active + '" data-date="' + d + '">' +
+          formatPillLabel(d) + "</button>";
+      })
+      .join("");
+
+    globalPrevBtn.disabled = windowStart <= 0;
+    globalNextBtn.disabled = windowStart + WINDOW_SIZE >= ALL_DATES.length;
+  }
+
+  if (ALL_DATES.length > 0) {
+    var todayIdx = ALL_DATES.indexOf(todayISO());
+    var startIdx = todayIdx !== -1 ? todayIdx : 0;
+    globalActiveDate = ALL_DATES[startIdx];
+    windowStart = Math.min(
+      Math.max(0, startIdx - Math.floor(WINDOW_SIZE / 2)),
+      Math.max(0, ALL_DATES.length - WINDOW_SIZE)
+    );
+    renderGlobalBar();
+    applyGlobalDate(globalActiveDate);
+  }
+
+  if (globalPills) {
+    globalPills.addEventListener("click", function (e) {
+      var pill = e.target.closest(".global-date-pill");
+      if (!pill) return;
+      globalActiveDate = pill.dataset.date;
+      renderGlobalBar();
+      applyGlobalDate(globalActiveDate);
+    });
+  }
+  if (globalPrevBtn) {
+    globalPrevBtn.addEventListener("click", function () {
+      windowStart = Math.max(0, windowStart - 1);
+      renderGlobalBar();
+    });
+  }
+  if (globalNextBtn) {
+    globalNextBtn.addEventListener("click", function () {
+      windowStart = Math.min(Math.max(0, ALL_DATES.length - WINDOW_SIZE), windowStart + 1);
+      renderGlobalBar();
+    });
+  }
+
   // ---- PWA 홈 화면 추가 배너 ----
   var banner = document.getElementById("installBanner");
   var msg = document.getElementById("installMsg");
@@ -505,13 +678,13 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
     if (!isInStandalone) {
       if (isIOS) {
-        msg.textContent = "홈 화면에 추가하면 앱처럼 빠르게 열 수 있어요. 공유 버튼 → \\"홈 화면에 추가\\"를 눌러주세요.";
+        msg.textContent = "앱으로 다운 받아 더 빠르게 확인하세요. 공유 버튼 → \\"홈 화면에 추가\\"를 눌러주세요.";
         banner.classList.add("show");
       } else {
         window.addEventListener("beforeinstallprompt", function (e) {
           e.preventDefault();
           deferredPrompt = e;
-          msg.textContent = "홈 화면에 추가하면 앱처럼 빠르게 열 수 있어요.";
+          msg.textContent = "앱으로 다운 받아 더 빠르게 확인하세요.";
           btn.style.display = "inline-block";
           banner.classList.add("show");
         });
@@ -556,7 +729,7 @@ MANIFEST_JSON = {
 
 
 def build_html(archive: dict) -> str:
-    now_str = datetime.now(KST).strftime("%Y년 %m월 %d일 %H:%M (KST)")
+    now_str = datetime.now(KST).strftime("%Y-%m-%d %H:%M(KST)")
     channel_order = ["gbsa", "rdb_center", "nano_gaeram"]
     ordered_names = [n for n in channel_order if n in archive] + [n for n in archive if n not in channel_order]
 
