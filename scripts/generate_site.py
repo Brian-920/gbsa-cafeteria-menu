@@ -1,14 +1,18 @@
 """
-[6단계] 웹페이지 생성 스크립트 (v3 — 아카이브 기반 렌더링 + PWA + 공휴일 표시)
+[6단계] 웹페이지 생성 스크립트 (v4 — Tailwind 기반 목업 디자인을 실제 데이터에 그대로 적용)
 
-이 스크립트는 이제 순수 "렌더러"다. 분류/예외처리/공휴일 판정은 모두
+이 스크립트는 순수 "렌더러"다. 분류/예외처리/공휴일 판정은 모두
 merge_archive.py에서 끝내고, data/archive.json에 정리된 결과만 그림으로 그린다.
 
-추가된 것:
-- data/archive.json 전체 날짜를 대상으로 ‹ › 네비게이션 (이번 주만이 아님)
-- is_holiday인 날은 메뉴 대신 공휴일명 배너 표시
-- PWA 설치 배너 (안드로이드: 실제 설치 버튼 / iOS: 안내 팝업)
-- assets/icons를 output/site로 복사, manifest.json 생성
+v4에서 바뀐 것:
+- 사용자가 검토/승인한 Tailwind 기반 프리뷰(index-desktop.html / index-mobile.html)의
+  마크업·클래스·색상·인터랙션을 그대로 프로덕션에 이식했다.
+- 서버(Python)는 이제 HTML 조각을 만들지 않고, archive.json을 그대로 JSON으로
+  임베드만 한다. 화면 렌더링은 전부 클라이언트 JS(아래 PAGE_TEMPLATE 안의 <script>)가
+  담당한다 (데스크톱 3열 + 공용 날짜바 / 모바일 아코디언을 하나의 반응형 페이지에서
+  같은 로직으로 처리).
+- 데스크톱 공용 날짜바는 3개 건물의 날짜를 합집합(union)한 뒤 5일 단위로 슬라이딩
+  윈도우를 유지한다 — 날짜가 계속 쌓여도 레이아웃이 깨지지 않는다.
 """
 
 import json
@@ -22,117 +26,20 @@ ASSETS_DIR = Path(__file__).parent.parent / "assets"
 
 KST = timezone(timedelta(hours=9))
 
-
-def strip_meal_prefix(name: str) -> str:
-    for prefix in ("중식 ", "석식 "):
-        if name.startswith(prefix):
-            return name[len(prefix):]
-    return name
+CHANNEL_ORDER = ["gbsa", "rdb_center", "nano_gaeram"]
 
 
-def render_meal_box(title, badge_class, groups):
-    if not groups:
-        body = '<p class="empty-meal">정보 없음</p>'
-    else:
-        parts = []
-        color_idx = 0
-        for g in groups:
-            gname = g.get("group_name", "")
-            items = g.get("items", [])
-            if not items:
-                continue
-            items_html = "".join(f"<li>{i}</li>" for i in items)
-            show_gname = gname and gname not in ("메뉴",)
-            display_name = strip_meal_prefix(gname) if show_gname else ""
-            color_class = f"gc-{color_idx % 5}"
-            gname_html = f"<div class='group-name {color_class}'>{display_name}</div>" if show_gname else ""
-            parts.append(
-                f'<div class="menu-group">{gname_html}<div class="menu-group-box">'
-                f'<ul class="items">{items_html}</ul></div></div>'
-            )
-            color_idx += 1
-        body = "".join(parts) if parts else '<p class="empty-meal">정보 없음</p>'
-
-    return f"""
-    <div class="meal-box">
-      <div class="meal-box-title"><span class="meal-badge {badge_class}">{title}</span></div>
-      <div class="meal-box-body">{body}</div>
-    </div>
-    """
-
-
-def render_day_panel(day, index):
-    label = f"{day['weekday_label']} · {int(day['date'][5:7])}월 {int(day['date'][8:10])}일"
-    label_attr = label.replace('"', "&quot;")
-
-    if day.get("is_holiday"):
-        holiday_name = day.get("holiday_name") or "공휴일"
-        content = f"""
-        <div class="holiday-banner">
-          🎉 <strong>{holiday_name}</strong>
-          <div class="holiday-sub">공휴일로 구내식당 미운영일 수 있습니다</div>
-        </div>
-        """
-    else:
-        lunch_html = render_meal_box("중식", "lunch", day.get("lunch_groups", []))
-        dinner_html = render_meal_box("석식", "dinner", day.get("dinner_groups", []))
-        content = f'<div class="meal-grid">{lunch_html}{dinner_html}</div>'
-
-    return f"""
-    <div class="day-panel" data-index="{index}" data-date="{day['date']}" data-label="{label_attr}">
-      {content}
-    </div>
-    """
-
-
-def render_channel_accordion(channel_name, channel, index):
-    label = channel.get("label", channel_name)
-    days = sorted(channel.get("days", {}).values(), key=lambda d: d["date"])
-
-    if not days:
-        return f"""
-    <div class="accordion-item">
-      <button type="button" class="accordion-header" disabled>
-        <span class="accordion-title"><span class="title-dot"></span>{label}</span>
-        <span class="chevron">›</span>
-      </button>
-      <div class="accordion-panel-wrap">
-        <div class="accordion-panel error-panel">
-          <p class="error-msg">⚠️ 아직 수집된 메뉴 정보가 없습니다.</p>
-        </div>
-      </div>
-    </div>
-    """
-
-    dates_json = json.dumps([d["date"] for d in days], ensure_ascii=False)
-    days_html = "".join(render_day_panel(days[i], i) for i in range(len(days)))
-    post_url = channel.get("post_url")
-    source_html = (
-        f'<a class="source-link" href="{post_url}" target="_blank">원본 게시글 보기 →</a>'
-        if post_url else ""
-    )
-
-    return f"""
-    <div class="accordion-item" data-channel="{channel_name}" data-dates='{dates_json}'>
-      <button type="button" class="accordion-header">
-        <span class="accordion-title"><span class="title-dot"></span>{label}</span>
-        <span class="chevron">›</span>
-      </button>
-      <div class="accordion-panel-wrap">
-        <div class="accordion-panel">
-          <div class="date-pill-row">
-            <button type="button" class="nav-btn prev-btn" aria-label="이전 날짜">‹</button>
-            <div class="date-pill-label"></div>
-            <button type="button" class="nav-btn next-btn" aria-label="다음 날짜">›</button>
-          </div>
-          <div class="date-viewport">
-            {days_html}
-          </div>
-          {source_html}
-        </div>
-      </div>
-    </div>
-    """
+def build_menu_data(archive: dict) -> dict:
+    """archive.json(day가 dict)을 프론트에서 쓰기 좋은 형태(day가 정렬된 list)로 변환."""
+    menu_data = {}
+    for name, channel in archive.items():
+        days = sorted(channel.get("days", {}).values(), key=lambda d: d["date"])
+        menu_data[name] = {
+            "label": channel.get("label", name),
+            "post_url": channel.get("post_url"),
+            "days": days,
+        }
+    return menu_data
 
 
 PAGE_TEMPLATE = """<!DOCTYPE html>
@@ -144,593 +51,416 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<meta name="theme-color" content="#1C4692">
+<meta name="theme-color" content="#00288e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="구내식당 식단표">
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --brand: #00288e;
-    --brand-light: #3b82f6;
-    --bg: #f7f9fb;
-    --card: #ffffff;
-    --border: #e2e8f0;
-    --text: #191c1e;
-    --muted: #64748b;
-    --radius-lg: 18px;
-    --radius-md: 12px;
-    --shadow: 0 1px 2px rgba(16,24,40,0.04), 0 4px 16px rgba(16,24,40,0.06);
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: "Pretendard", "Inter", "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    -webkit-font-smoothing: antialiased;
-  }
-  .page {
-    max-width: 560px;
-    margin: 0 auto;
-    padding: 24px 16px 60px;
-  }
-  @media (min-width: 900px) {
-    .page { max-width: 1100px; }
-  }
-  .top-bar {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  .top-bar h1 {
-    font-size: 19px;
-    font-weight: 700;
-    margin: 0 0 6px;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-  }
-  @media (max-width: 380px) {
-    .top-bar h1 { font-size: 16px; }
-  }
-  .top-bar .updated {
-    font-size: 12.5px;
-    color: var(--muted);
-  }
-  .install-banner {
-    display: none;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow);
-    padding: 12px 14px;
-    margin-bottom: 16px;
-    font-size: 12.5px;
-  }
-  .install-banner.show { display: flex; }
-  .install-banner .msg { color: var(--text); line-height: 1.5; }
-  .install-banner button {
-    flex: 0 0 auto;
-    background: var(--brand);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 12.5px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .install-banner .dismiss {
-    background: none;
-    color: var(--muted);
-    padding: 8px 6px;
-  }
-  .accordion {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  @media (min-width: 900px) {
-    .accordion {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      align-items: start;
-      gap: 16px;
-    }
-  }
-  .accordion-item {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    transition: border-color 0.15s ease;
-  }
-  @media (min-width: 900px) {
-    .accordion-item.open {
-      border: 2px solid var(--brand-light);
-    }
-  }
-  .accordion-header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: none;
-    border: none;
-    padding: 18px 20px;
-    font-size: 15.5px;
-    font-weight: 600;
-    color: var(--text);
-    cursor: pointer;
-    text-align: left;
-  }
-  .accordion-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .title-dot {
-    flex: 0 0 auto;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #cbd5e1;
-  }
-  .accordion-item.open .title-dot {
-    background: var(--brand-light);
-  }
-  .accordion-header:disabled {
-    cursor: default;
-    color: var(--muted);
-  }
-  .chevron {
-    font-size: 20px;
-    color: var(--muted);
-    transform: rotate(90deg);
-    transition: transform 0.25s ease;
-  }
-  .accordion-item.open .chevron {
-    transform: rotate(-90deg);
-  }
-  .accordion-panel-wrap {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-  }
-  .accordion-panel, .error-panel {
-    padding: 0 20px 20px;
-  }
-  .error-msg {
-    color: #c0392b;
-    font-size: 13.5px;
-    margin: 0 0 8px;
-  }
-  .date-pill-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  @media (min-width: 900px) {
-    .date-pill-row { display: none; }
-  }
-  .global-date-bar {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    width: fit-content;
-    margin: 0 auto 24px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    box-shadow: var(--shadow);
-    padding: 6px;
-  }
-  @media (min-width: 900px) {
-    .global-date-bar { display: flex; }
-  }
-  .global-date-pills {
-    display: flex;
-    gap: 2px;
-  }
-  .global-date-pill {
-    flex: 0 0 auto;
-    border: none;
-    background: none;
-    border-radius: 999px;
-    padding: 9px 16px;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: var(--muted);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s ease, color 0.15s ease;
-  }
-  .global-date-pill:hover { background: #eef2fb; }
-  .global-date-pill.active {
-    background: var(--brand);
-    color: #fff;
-  }
-  .global-date-bar .nav-btn {
-    width: 36px;
-    height: 36px;
-  }
-  .nav-btn {
-    flex: 0 0 auto;
-    width: 32px;
-    height: 32px;
-    border: 1px solid var(--border);
-    background: #fafbfd;
-    border-radius: 10px;
-    font-size: 17px;
-    line-height: 1;
-    color: var(--brand);
-    cursor: pointer;
-    transition: background 0.15s ease;
-  }
-  .nav-btn:hover { background: #eef2fb; }
-  .nav-btn:disabled { opacity: 0.3; cursor: default; }
-  .date-pill-label {
-    flex: 1 1 auto;
-    max-width: 220px;
-    text-align: center;
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--brand);
-    background: #eef2fb;
-    border-radius: 10px;
-    padding: 8px 0;
-  }
-  .date-viewport { position: relative; }
-  .day-panel { display: none; }
-  .day-panel.active { display: block; }
-  .meal-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  @media (max-width: 380px) {
-    .meal-grid { grid-template-columns: 1fr; }
-  }
-  .meal-box {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 12px;
-    background: #fcfcfd;
-  }
-  .meal-box-title {
-    margin-bottom: 10px;
-  }
-  .meal-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: #fff;
-  }
-  .meal-badge.lunch { background: var(--brand-light); }
-  .meal-badge.dinner { background: #1e293b; }
-  .menu-group { margin-bottom: 12px; }
-  .menu-group:last-child { margin-bottom: 0; }
-  .menu-group-box {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: #ffffff;
-    padding: 10px 12px;
-  }
-  .group-name {
-    font-size: 11.5px;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-  .group-name.gc-0 { color: #3b82f6; }
-  .group-name.gc-1 { color: #059669; }
-  .group-name.gc-2 { color: #7c3aed; }
-  .group-name.gc-3 { color: #d97706; }
-  .group-name.gc-4 { color: #e11d48; }
-  ul.items {
-    margin: 0;
-    padding-left: 14px;
-    font-size: 12px;
-    line-height: 1.55;
-  }
-  .empty-meal { font-size: 12px; color: var(--muted); margin: 0; }
-  .holiday-banner {
-    text-align: center;
-    padding: 28px 12px;
-    background: #fff7ed;
-    border: 1px dashed #f3b866;
-    border-radius: var(--radius-md);
-    font-size: 15px;
-    color: #9a5b12;
-  }
-  .holiday-sub {
-    font-size: 12px;
-    color: #b07a3a;
-    margin-top: 6px;
-  }
-  .source-link {
-    display: inline-block;
-    margin-top: 14px;
-    font-size: 12px;
-    color: var(--brand-light);
-    text-decoration: none;
-  }
-  .source-link:hover { text-decoration: underline; }
-  footer {
-    text-align: center;
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 28px;
-    line-height: 1.6;
-  }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  body { font-family: 'Hanken Grotesk', 'Pretendard', 'Noto Sans KR', sans-serif; background-color: #f7f9fb; color: #191c1e; -webkit-font-smoothing: antialiased; }
 </style>
 </head>
-<body>
-<div class="page">
-  <div class="top-bar">
-    <h1>🍱 광교테크노밸리 구내식당 식단표</h1>
-    <div class="updated">마지막 업데이트 : __UPDATED_AT__</div>
+<body class="bg-surface">
+
+<header class="sticky top-0 z-50 w-full bg-surface-container-low/80 backdrop-blur-md border-b border-outline-variant">
+  <div class="max-w-[1280px] mx-auto px-4 md:px-8 py-3 md:py-4 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary text-[20px] md:text-[24px]">restaurant</span>
+      <h1 class="text-[16px] md:text-headline-md font-bold text-primary leading-tight whitespace-nowrap">광교테크노밸리 구내식당 식단표</h1>
+    </div>
+    <span class="hidden md:inline text-label-md text-on-surface-variant">마지막 업데이트: __UPDATED_AT__</span>
+  </div>
+</header>
+
+<main class="max-w-[1280px] mx-auto px-4 md:px-8 py-5 md:py-8 space-y-4 md:space-y-6">
+  <p class="md:hidden text-label-md text-on-surface-variant">마지막 업데이트 : __UPDATED_AT__</p>
+
+  <div id="installBanner" class="hidden items-start justify-between gap-3 bg-blue-50 border border-blue-100 rounded-xl p-3 md:p-4">
+    <div class="flex items-start gap-2 md:gap-3">
+      <span class="material-symbols-outlined text-accent-blue text-[18px] md:text-[24px]">install_mobile</span>
+      <p id="installMsg" class="text-body-sm text-blue-900 flex-1"></p>
+    </div>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <button id="installBtn" type="button" style="display:none;" class="text-label-md font-semibold text-white bg-primary rounded-lg px-3 py-1.5 whitespace-nowrap">설치</button>
+      <button id="installDismiss" type="button" class="text-label-md text-blue-700 hover:text-blue-900">닫기</button>
+    </div>
   </div>
 
-  <div id="installBanner" class="install-banner">
-    <div class="msg" id="installMsg"></div>
-    <button type="button" id="installBtn" style="display:none;">홈 화면에 추가</button>
-    <button type="button" class="dismiss" id="installDismiss">닫기</button>
-  </div>
+  <div id="global-date-bar" class="hidden md:flex justify-center py-2"></div>
 
-  <div class="global-date-bar" id="globalDateBar">
-    <button type="button" class="nav-btn" id="globalPrev" aria-label="이전 날짜">‹</button>
-    <div class="global-date-pills" id="globalDatePills"></div>
-    <button type="button" class="nav-btn" id="globalNext" aria-label="다음 날짜">›</button>
-  </div>
+  <div id="accordion-root" class="space-y-3 md:space-y-0 md:grid md:grid-cols-3 md:gap-6 md:items-start"></div>
+</main>
 
-  <div class="accordion">
-    __ACCORDION_HTML__
-  </div>
+<p class="md:hidden max-w-[1280px] mx-auto px-4 pb-4 text-[12px] text-slate-400 leading-relaxed">실제 운영 사정에 따라 메뉴가 변경될 수 있으니, 정확한 정보는 원본 게시글을 확인해주세요.</p>
+<div class="md:hidden h-6"></div>
 
-  <footer>
-    실제 운영 사정에 따라 메뉴가 변경될 수 있으니, 정확한 정보는 원본 게시글을 확인해주세요.
-  </footer>
-</div>
+<footer class="hidden md:block w-full py-8 px-8 bg-surface-container-low border-t border-outline-variant mt-6">
+  <div class="max-w-[1280px] mx-auto flex justify-between items-center">
+    <p class="text-body-sm text-on-surface-variant">실제 운영 사정에 따라 메뉴가 변경될 수 있으니, 정확한 정보는 원본 게시글을 확인해주세요.</p>
+    <p class="text-label-md font-bold text-secondary">광교테크노밸리 구내식당 식단표</p>
+  </div>
+</footer>
 
 <script>
+const MENU_DATA = __MENU_DATA_JSON__;
+const FACILITY_ORDER = __FACILITY_ORDER_JSON__;
+</script>
+<script>
 (function () {
-  function pad(n) { return String(n).padStart(2, "0"); }
+  var BREAKPOINT = 768;
+  function IS_DESKTOP() { return window.matchMedia("(min-width: " + BREAKPOINT + "px)").matches; }
 
+  var GROUP_COLORS = ["text-accent-blue", "text-emerald-600", "text-violet-600", "text-amber-600", "text-rose-500"];
+  var GROUP_BORDER_COLORS = [
+    "border-blue-200 group-hover:border-blue-300",
+    "border-emerald-200 group-hover:border-emerald-300",
+    "border-violet-200 group-hover:border-violet-300",
+    "border-amber-200 group-hover:border-amber-300",
+    "border-rose-200 group-hover:border-rose-300",
+  ];
+  var WEEKDAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
+
+  var state = {}; // 모바일 전용: { key: { expanded, dateIndex } }
+  var ALL_DATES = [];
+  var WINDOW_SIZE = 5;
+  var windowStart = 0;
+  var globalActiveDate = null;
+
+  function pad(n) { return String(n).padStart(2, "0"); }
   function todayISO() {
     var d = new Date();
     return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
   }
 
-  function getInitialIndex(dates) {
-    var t = todayISO();
-    var idx = dates.indexOf(t);
-    if (idx !== -1) return idx;
-    if (dates.length === 0) return -1;
-    if (t > dates[dates.length - 1]) return dates.length - 1;
-    return 0;
-  }
-
-  function setActiveDay(item, index) {
-    var panels = item.querySelectorAll(".day-panel");
-    var activePanel = null;
-    panels.forEach(function (p) {
-      var isActive = parseInt(p.dataset.index, 10) === index;
-      p.classList.toggle("active", isActive);
-      if (isActive) activePanel = p;
-    });
-    item.dataset.currentIndex = index;
-
-    var label = item.querySelector(".date-pill-label");
-    if (label && activePanel) label.textContent = activePanel.dataset.label || "";
-
-    var dates = JSON.parse(item.dataset.dates || "[]");
-    var prevBtn = item.querySelector(".prev-btn");
-    var nextBtn = item.querySelector(".next-btn");
-    if (prevBtn) prevBtn.disabled = index <= 0;
-    if (nextBtn) nextBtn.disabled = index >= dates.length - 1;
-  }
-
-  function recalcHeight(item) {
-    var wrap = item.querySelector(".accordion-panel-wrap");
-    var panel = item.querySelector(".accordion-panel, .error-panel");
-    if (wrap && panel) {
-      wrap.style.maxHeight = item.classList.contains("open") ? panel.scrollHeight + "px" : "0px";
-    }
-  }
-
-  document.querySelectorAll(".accordion-item").forEach(function (item) {
-    var dates = JSON.parse(item.dataset.dates || "[]");
-    if (dates.length > 0) setActiveDay(item, getInitialIndex(dates));
-
-    var header = item.querySelector(".accordion-header");
-    if (header && !header.disabled) {
-      header.addEventListener("click", function () {
-        item.classList.toggle("open");
-        recalcHeight(item);
-      });
-    }
-
-    var prevBtn = item.querySelector(".prev-btn");
-    var nextBtn = item.querySelector(".next-btn");
-    if (prevBtn) {
-      prevBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        var cur = parseInt(item.dataset.currentIndex || "0", 10);
-        if (cur > 0) { setActiveDay(item, cur - 1); recalcHeight(item); }
-      });
-    }
-    if (nextBtn) {
-      nextBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        var cur = parseInt(item.dataset.currentIndex || "0", 10);
-        if (cur < dates.length - 1) { setActiveDay(item, cur + 1); recalcHeight(item); }
-      });
-    }
-  });
-
-  // PC(넓은 화면, 900px 이상)에서는 기본으로 펼쳐진 상태로 시작.
-  // 모바일(좁은 화면)에서는 기존처럼 기본 닫힘 유지.
-  if (window.matchMedia("(min-width: 900px)").matches) {
-    document.querySelectorAll(".accordion-item").forEach(function (item) {
-      var header = item.querySelector(".accordion-header");
-      if (header && !header.disabled) {
-        item.classList.add("open");
-        recalcHeight(item);
-      }
-    });
-  }
-
-  window.addEventListener("resize", function () {
-    document.querySelectorAll(".accordion-item.open").forEach(recalcHeight);
-  });
-
-  // ---- 데스크톱 공용 날짜 선택바 (모든 건물에 동일 날짜 적용, 창(window) 슬라이딩) ----
-  var WEEKDAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
-
-  function formatPillLabel(dateStr) {
-    var p = dateStr.split("-").map(Number);
-    var dt = new Date(p[0], p[1] - 1, p[2]);
-    return p[1] + "월 " + p[2] + "일 (" + WEEKDAY_KR[dt.getDay()] + ")";
-  }
-
   function unionDates() {
     var seen = {};
     var all = [];
-    document.querySelectorAll(".accordion-item[data-dates]").forEach(function (item) {
-      JSON.parse(item.dataset.dates || "[]").forEach(function (d) {
-        if (!seen[d]) { seen[d] = true; all.push(d); }
+    FACILITY_ORDER.forEach(function (key) {
+      (MENU_DATA[key].days || []).forEach(function (d) {
+        if (!seen[d.date]) { seen[d.date] = true; all.push(d.date); }
       });
     });
     return all.sort();
   }
 
-  var ALL_DATES = unionDates();
-  var WINDOW_SIZE = 5;
-  var windowStart = 0;
-  var globalActiveDate = null;
-
-  var globalBar = document.getElementById("globalDateBar");
-  var globalPills = document.getElementById("globalDatePills");
-  var globalPrevBtn = document.getElementById("globalPrev");
-  var globalNextBtn = document.getElementById("globalNext");
-
-  function applyGlobalDate(dateStr) {
-    document.querySelectorAll(".accordion-item[data-dates]").forEach(function (item) {
-      var dates = JSON.parse(item.dataset.dates || "[]");
-      var idx = dates.indexOf(dateStr);
-      if (idx !== -1) {
-        setActiveDay(item, idx);
-        recalcHeight(item);
-      }
-    });
-  }
-
-  function renderGlobalBar() {
-    if (!globalBar || ALL_DATES.length === 0) return;
-    var maxStart = Math.max(0, ALL_DATES.length - WINDOW_SIZE);
-    if (windowStart > maxStart) windowStart = maxStart;
-    if (windowStart < 0) windowStart = 0;
-
-    var slice = ALL_DATES.slice(windowStart, windowStart + WINDOW_SIZE);
-    globalPills.innerHTML = slice
-      .map(function (d) {
-        var active = d === globalActiveDate ? " active" : "";
-        return '<button type="button" class="global-date-pill' + active + '" data-date="' + d + '">' +
-          formatPillLabel(d) + "</button>";
-      })
-      .join("");
-
-    globalPrevBtn.disabled = windowStart <= 0;
-    globalNextBtn.disabled = windowStart + WINDOW_SIZE >= ALL_DATES.length;
-  }
-
-  if (ALL_DATES.length > 0) {
-    var todayIdx = ALL_DATES.indexOf(todayISO());
-    var startIdx = todayIdx !== -1 ? todayIdx : 0;
-    globalActiveDate = ALL_DATES[startIdx];
+  function initState() {
+    ALL_DATES = unionDates();
+    var t = todayISO();
+    var idx = ALL_DATES.indexOf(t);
+    if (idx === -1) {
+      idx = ALL_DATES.length === 0 ? 0 : (t > ALL_DATES[ALL_DATES.length - 1] ? ALL_DATES.length - 1 : 0);
+    }
+    globalActiveDate = ALL_DATES.length ? ALL_DATES[idx] : null;
     windowStart = Math.min(
-      Math.max(0, startIdx - Math.floor(WINDOW_SIZE / 2)),
+      Math.max(0, idx - Math.floor(WINDOW_SIZE / 2)),
       Math.max(0, ALL_DATES.length - WINDOW_SIZE)
     );
-    renderGlobalBar();
-    applyGlobalDate(globalActiveDate);
-  }
 
-  if (globalPills) {
-    globalPills.addEventListener("click", function (e) {
-      var pill = e.target.closest(".global-date-pill");
-      if (!pill) return;
-      globalActiveDate = pill.dataset.date;
-      renderGlobalBar();
-      applyGlobalDate(globalActiveDate);
-    });
-  }
-  if (globalPrevBtn) {
-    globalPrevBtn.addEventListener("click", function () {
-      windowStart = Math.max(0, windowStart - 1);
-      renderGlobalBar();
-    });
-  }
-  if (globalNextBtn) {
-    globalNextBtn.addEventListener("click", function () {
-      windowStart = Math.min(Math.max(0, ALL_DATES.length - WINDOW_SIZE), windowStart + 1);
-      renderGlobalBar();
+    FACILITY_ORDER.forEach(function (key) {
+      var fDays = MENU_DATA[key].days || [];
+      var fIdx = fDays.findIndex(function (d) { return d.date === t; });
+      if (fIdx === -1) fIdx = 0;
+      state[key] = { expanded: false, dateIndex: fIdx };
     });
   }
 
-  // ---- PWA 홈 화면 추가 배너 ----
-  var banner = document.getElementById("installBanner");
-  var msg = document.getElementById("installMsg");
-  var btn = document.getElementById("installBtn");
-  var dismiss = document.getElementById("installDismiss");
-  var deferredPrompt = null;
+  function fmtDatePillShort(day) {
+    var m = parseInt(day.date.slice(5, 7), 10);
+    var d = parseInt(day.date.slice(8, 10), 10);
+    var weekdayShort = (day.weekday_label || "").replace("요일", "");
+    return weekdayShort + " · " + m + "월 " + d + "일";
+  }
 
-  var DISMISS_KEY = "gbsa_menu_install_dismissed";
-  if (localStorage.getItem(DISMISS_KEY)) {
-    banner.classList.remove("show");
-  } else {
-    var isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-    var isInStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+  function fmtDateButtonLabel(dateStr) {
+    var p = dateStr.split("-").map(Number);
+    var dt = new Date(p[0], p[1] - 1, p[2]);
+    return p[1] + "월 " + p[2] + "일 (" + WEEKDAY_KR[dt.getDay()] + ")";
+  }
 
-    if (!isInStandalone) {
-      if (isIOS) {
-        msg.textContent = "앱으로 다운 받아 더 빠르게 확인하세요. 공유 버튼 → \\"홈 화면에 추가\\"를 눌러주세요.";
-        banner.classList.add("show");
-      } else {
-        window.addEventListener("beforeinstallprompt", function (e) {
-          e.preventDefault();
-          deferredPrompt = e;
-          msg.textContent = "앱으로 다운 받아 더 빠르게 확인하세요.";
-          btn.style.display = "inline-block";
-          banner.classList.add("show");
-        });
-      }
+  function stripMealPrefix(name) {
+    return (name || "").replace(/^(중식|석식)\\s*/, "");
+  }
+
+  function renderMealSection(title, badgeClass, groups) {
+    var nonEmpty = (groups || []).filter(function (g) { return g.items && g.items.length > 0; });
+    if (nonEmpty.length === 0) {
+      return (
+        '<section class="space-y-3">' +
+          '<div class="flex items-center gap-2">' +
+            '<span class="px-2 py-1 ' + badgeClass + ' text-white text-[10px] font-bold rounded uppercase tracking-wider">' + title + '</span>' +
+            '<div class="h-px flex-1 bg-slate-100"></div>' +
+          '</div>' +
+          '<p class="text-body-sm text-on-surface-variant py-2">정보 없음</p>' +
+        '</section>'
+      );
+    }
+    var cards = nonEmpty.map(function (g, i) {
+      var color = GROUP_COLORS[i % GROUP_COLORS.length];
+      var borderColor = GROUP_BORDER_COLORS[i % GROUP_BORDER_COLORS.length];
+      var displayName = stripMealPrefix(g.group_name);
+      var items = g.items.map(function (item) {
+        return '<li class="text-body-sm text-on-surface-variant leading-relaxed">' + item + '</li>';
+      }).join("");
+      return (
+        '<div class="group">' +
+          '<div class="flex justify-between items-baseline mb-1">' +
+            '<span class="text-label-md ' + color + ' font-extrabold tracking-wide">' + displayName + '</span>' +
+          '</div>' +
+          '<div class="p-4 rounded-lg border bg-white ' + borderColor + ' transition-colors">' +
+            '<ul class="space-y-1">' + items + '</ul>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join("");
+    return (
+      '<section class="space-y-3">' +
+        '<div class="flex items-center gap-2">' +
+          '<span class="px-2 py-1 ' + badgeClass + ' text-white text-[10px] font-bold rounded uppercase tracking-wider">' + title + '</span>' +
+          '<div class="h-px flex-1 bg-slate-100"></div>' +
+        '</div>' +
+        cards +
+      '</section>'
+    );
+  }
+
+  function renderDayContent(day) {
+    if (!day) {
+      return '<p class="text-body-sm text-on-surface-variant py-2">정보 없음</p>';
+    }
+    if (day.is_holiday) {
+      return (
+        '<div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">' +
+          '<span class="material-symbols-outlined text-accent-blue">celebration</span>' +
+          '<div>' +
+            '<p class="text-body-sm font-semibold text-blue-900">' + (day.holiday_name || "공휴일") + '</p>' +
+            '<p class="text-body-sm text-blue-700">구내식당이 운영되지 않습니다.</p>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+    return (
+      '<div class="grid grid-cols-1 gap-6">' +
+        renderMealSection("중식", "bg-accent-blue", day.lunch_groups || []) +
+        renderMealSection("석식", "bg-slate-800", day.dinner_groups || []) +
+      '</div>'
+    );
+  }
+
+  // ---------- 데스크톱: 상단 공용 날짜 선택바 (합집합 + 5일 슬라이딩 윈도우) ----------
+  function renderGlobalDateBar() {
+    if (ALL_DATES.length === 0) return "";
+    var maxStart = Math.max(0, ALL_DATES.length - WINDOW_SIZE);
+    windowStart = Math.min(Math.max(0, windowStart), maxStart);
+    var atMin = windowStart <= 0;
+    var atMax = windowStart + WINDOW_SIZE >= ALL_DATES.length;
+    var slice = ALL_DATES.slice(windowStart, windowStart + WINDOW_SIZE);
+
+    var buttons = slice.map(function (dateStr) {
+      var active = dateStr === globalActiveDate;
+      return (
+        '<button type="button" data-action="global-date" data-date="' + dateStr + '" class="px-4 py-2 rounded-full text-body-sm font-semibold transition-colors ' +
+        (active ? "bg-primary text-white shadow-sm" : "text-on-surface-variant hover:bg-slate-100") + '">' +
+          fmtDateButtonLabel(dateStr) +
+        '</button>'
+      );
+    }).join("");
+
+    return (
+      '<div class="flex items-center gap-1 bg-white rounded-full p-1.5 border border-slate-200 shadow-sm w-fit mx-auto">' +
+        '<button type="button" data-action="global-prev" ' + (atMin ? "disabled" : "") + ' class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors disabled:opacity-30 disabled:hover:bg-transparent">' +
+          '<span class="material-symbols-outlined text-on-surface-variant text-[20px]">chevron_left</span>' +
+        '</button>' +
+        buttons +
+        '<button type="button" data-action="global-next" ' + (atMax ? "disabled" : "") + ' class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors disabled:opacity-30 disabled:hover:bg-transparent">' +
+          '<span class="material-symbols-outlined text-on-surface-variant text-[20px]">chevron_right</span>' +
+        '</button>' +
+      '</div>'
+    );
+  }
+
+  function renderFacilityDesktop(key) {
+    var facility = MENU_DATA[key];
+    var day = (facility.days || []).find(function (d) { return d.date === globalActiveDate; });
+    return (
+      '<div class="bg-white border-2 border-accent-blue shadow-md rounded-xl overflow-hidden transition-all" data-key="' + key + '">' +
+        '<div class="p-4 flex items-center gap-3 bg-slate-50/50 border-b border-slate-100">' +
+          '<div class="w-2 h-2 rounded-full bg-accent-blue"></div>' +
+          '<h3 class="text-body-lg font-bold text-on-surface">' + facility.label.replace(" 구내식당", "") + '</h3>' +
+        '</div>' +
+        '<div class="p-4 space-y-6">' +
+          renderDayContent(day) +
+          (facility.post_url
+            ? '<a href="' + facility.post_url + '" target="_blank" class="inline-flex items-center gap-1 text-label-md text-secondary hover:text-primary transition-colors">원본 게시글 보기 <span class="material-symbols-outlined text-[16px]">arrow_outward</span></a>'
+            : "") +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  // ---------- 모바일: 건물별 개별 날짜 아코디언 (기본 전부 접힘) ----------
+  function renderFacilityMobile(key) {
+    var facility = MENU_DATA[key];
+    var s = state[key];
+    var days = facility.days || [];
+    var day = days[s.dateIndex];
+    var atMin = s.dateIndex === 0;
+    var atMax = s.dateIndex === days.length - 1;
+    var activeDot = s.expanded
+      ? '<div class="w-2 h-2 rounded-full bg-accent-blue"></div>'
+      : '<div class="w-2 h-2 rounded-full bg-slate-300"></div>';
+
+    var body = "";
+    if (s.expanded) {
+      body =
+        '<div class="p-4 space-y-6">' +
+          '<div class="flex items-center justify-between bg-slate-50 rounded-full px-2 py-1 border border-slate-200">' +
+            '<button type="button" data-action="prev" data-key="' + key + '" ' + (atMin ? "disabled" : "") + ' class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 transition-colors disabled:opacity-30 disabled:hover:bg-transparent">' +
+              '<span class="material-symbols-outlined text-on-surface-variant text-[20px]">chevron_left</span>' +
+            '</button>' +
+            '<span class="text-label-md font-bold text-on-surface">' + (day ? fmtDatePillShort(day) : "") + '</span>' +
+            '<button type="button" data-action="next" data-key="' + key + '" ' + (atMax ? "disabled" : "") + ' class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 transition-colors disabled:opacity-30 disabled:hover:bg-transparent">' +
+              '<span class="material-symbols-outlined text-on-surface-variant text-[20px]">chevron_right</span>' +
+            '</button>' +
+          '</div>' +
+          renderDayContent(day) +
+          (facility.post_url
+            ? '<a href="' + facility.post_url + '" target="_blank" class="inline-flex items-center gap-1 text-label-md text-secondary hover:text-primary transition-colors">원본 게시글 보기 <span class="material-symbols-outlined text-[16px]">arrow_outward</span></a>'
+            : "") +
+        '</div>';
+    }
+
+    return (
+      '<div class="' + (s.expanded ? "bg-white border-2 border-accent-blue shadow-md" : "bg-white/80 border border-slate-200 shadow-sm hover:border-accent-blue/30") + ' rounded-xl overflow-hidden transition-all" data-key="' + key + '">' +
+        '<button type="button" class="w-full p-4 flex items-center justify-between text-left ' + (s.expanded ? "bg-slate-50/50 border-b border-slate-100" : "") + '" data-action="toggle" data-key="' + key + '">' +
+          '<div class="flex items-center gap-3">' +
+            activeDot +
+            '<h3 class="text-body-lg ' + (s.expanded ? "font-bold" : "font-semibold") + ' text-on-surface">' + facility.label.replace(" 구내식당", "") + '</h3>' +
+          '</div>' +
+          '<span class="material-symbols-outlined ' + (s.expanded ? "text-accent-blue" : "text-on-surface-variant") + '">' + (s.expanded ? "expand_less" : "expand_more") + '</span>' +
+        '</button>' +
+        body +
+      '</div>'
+    );
+  }
+
+  function render() {
+    var root = document.getElementById("accordion-root");
+    var bar = document.getElementById("global-date-bar");
+    if (IS_DESKTOP()) {
+      if (bar) bar.innerHTML = renderGlobalDateBar();
+      root.innerHTML = FACILITY_ORDER.map(function (key) { return renderFacilityDesktop(key); }).join("");
+    } else {
+      if (bar) bar.innerHTML = "";
+      root.innerHTML = FACILITY_ORDER.map(function (key) { return renderFacilityMobile(key); }).join("");
     }
   }
 
-  if (btn) {
-    btn.addEventListener("click", function () {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.finally(function () {
-          banner.classList.remove("show");
-        });
+  function attachEvents() {
+    document.addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-action]");
+      if (!btn || btn.disabled) return;
+      var action = btn.dataset.action;
+
+      if (action === "global-prev") {
+        windowStart = Math.max(0, windowStart - 1);
+        render();
+      } else if (action === "global-next") {
+        windowStart = Math.min(Math.max(0, ALL_DATES.length - WINDOW_SIZE), windowStart + 1);
+        render();
+      } else if (action === "global-date") {
+        globalActiveDate = btn.dataset.date;
+        render();
+      } else if (action === "toggle") {
+        if (IS_DESKTOP()) return;
+        var key1 = btn.dataset.key;
+        state[key1].expanded = !state[key1].expanded;
+        render();
+      } else if (action === "prev") {
+        var key2 = btn.dataset.key;
+        state[key2].dateIndex = Math.max(0, state[key2].dateIndex - 1);
+        render();
+      } else if (action === "next") {
+        var key3 = btn.dataset.key;
+        var max = (MENU_DATA[key3].days || []).length - 1;
+        state[key3].dateIndex = Math.min(max, state[key3].dateIndex + 1);
+        render();
       }
     });
   }
-  if (dismiss) {
-    dismiss.addEventListener("click", function () {
-      banner.classList.remove("show");
-      try { localStorage.setItem(DISMISS_KEY, "1"); } catch (e) {}
-    });
+
+  var lastIsDesktop = null;
+  function checkBreakpointChange() {
+    var nowDesktop = IS_DESKTOP();
+    if (nowDesktop !== lastIsDesktop) {
+      lastIsDesktop = nowDesktop;
+      render();
+    }
   }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    initState();
+    lastIsDesktop = IS_DESKTOP();
+    render();
+    attachEvents();
+  });
+  window.addEventListener("resize", checkBreakpointChange);
+
+  // ---- PWA 홈 화면 추가 / 앱 다운로드 배너 (실제 동작) ----
+  document.addEventListener("DOMContentLoaded", function () {
+    var banner = document.getElementById("installBanner");
+    var msg = document.getElementById("installMsg");
+    var btn = document.getElementById("installBtn");
+    var dismissBtn = document.getElementById("installDismiss");
+    var deferredPrompt = null;
+    var DISMISS_KEY = "gbsa_menu_install_dismissed";
+
+    function showBanner(text) {
+      msg.textContent = text;
+      banner.classList.remove("hidden");
+      banner.classList.add("flex");
+    }
+    function hideBanner() {
+      banner.classList.add("hidden");
+      banner.classList.remove("flex");
+    }
+
+    if (localStorage.getItem(DISMISS_KEY)) {
+      hideBanner();
+    } else {
+      var isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+      var isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+
+      if (!isStandalone) {
+        if (isIOS) {
+          showBanner("앱으로 다운 받아 더 빠르게 확인하세요. 공유 버튼 → \\"홈 화면에 추가\\"를 눌러주세요.");
+        } else {
+          window.addEventListener("beforeinstallprompt", function (e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            showBanner("앱으로 다운 받아 더 빠르게 확인하세요.");
+            btn.style.display = "inline-block";
+          });
+        }
+      }
+    }
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.finally(hideBanner);
+        }
+      });
+    }
+    if (dismissBtn) {
+      dismissBtn.addEventListener("click", function () {
+        hideBanner();
+        try { localStorage.setItem(DISMISS_KEY, "1"); } catch (e) {}
+      });
+    }
+  });
 })();
 </script>
 </body>
@@ -742,8 +472,8 @@ MANIFEST_JSON = {
     "short_name": "구내식당 식단표",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#f6f7fb",
-    "theme_color": "#1C4692",
+    "background_color": "#f7f9fb",
+    "theme_color": "#00288e",
     "icons": [
         {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
         {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
@@ -753,16 +483,16 @@ MANIFEST_JSON = {
 
 def build_html(archive: dict) -> str:
     now_str = datetime.now(KST).strftime("%Y-%m-%d %H:%M(KST)")
-    channel_order = ["gbsa", "rdb_center", "nano_gaeram"]
-    ordered_names = [n for n in channel_order if n in archive] + [n for n in archive if n not in channel_order]
+    ordered_names = [n for n in CHANNEL_ORDER if n in archive] + [n for n in archive if n not in CHANNEL_ORDER]
 
-    accordion_html = "".join(
-        render_channel_accordion(name, archive[name], i) for i, name in enumerate(ordered_names)
-    )
+    menu_data = build_menu_data(archive)
+    menu_data_json = json.dumps(menu_data, ensure_ascii=False)
+    facility_order_json = json.dumps(ordered_names, ensure_ascii=False)
 
     html = PAGE_TEMPLATE
     html = html.replace("__UPDATED_AT__", now_str)
-    html = html.replace("__ACCORDION_HTML__", accordion_html)
+    html = html.replace("__MENU_DATA_JSON__", menu_data_json)
+    html = html.replace("__FACILITY_ORDER_JSON__", facility_order_json)
     return html
 
 
@@ -773,6 +503,13 @@ def copy_static_assets():
         icons_dst.mkdir(parents=True, exist_ok=True)
         for f in icons_src.glob("*.png"):
             shutil.copy(f, icons_dst / f.name)
+
+    css_src = ASSETS_DIR / "styles.css"
+    if css_src.exists():
+        SITE_DIR.mkdir(parents=True, exist_ok=True)
+        shutil.copy(css_src, SITE_DIR / "styles.css")
+    else:
+        print("경고: assets/styles.css가 없습니다. scripts/build_css.sh로 먼저 빌드하세요.")
 
     (SITE_DIR / "manifest.json").write_text(
         json.dumps(MANIFEST_JSON, ensure_ascii=False, indent=2), encoding="utf-8"

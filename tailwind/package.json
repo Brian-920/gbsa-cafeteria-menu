@@ -1,0 +1,10 @@
+{
+  "name": "gbsa-cafeteria-menu-styles",
+  "private": true,
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  },
+  "scripts": {
+    "build": "tailwindcss -i input.css -o ../assets/styles.css --minify"
+  }
+}
