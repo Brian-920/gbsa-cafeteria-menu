@@ -73,6 +73,34 @@ def build_day_entry(day: dict, channel_name: str, run_year: int, holidays: dict)
     }
 
 
+def fill_missing_week_with_placeholder(channel_archive: dict, holidays: dict):
+    """이번 주 식단표를 (5개 후보를 다 시도해도) 찾지 못한 채널에 대해,
+    이번 주(월~금) 중 아직 아카이브에 없는 날짜를 '정보 없음' 상태의
+    빈 데이터로 채워 넣는다.
+
+    이렇게 해두지 않으면 프론트엔드가 오늘 날짜에 해당하는 데이터를 못 찾고
+    엉뚱하게 예전(가장 오래된) 날짜를 기본값으로 보여줄 수 있다.
+    """
+    added = 0
+    for d in rules.current_week_weekdays():
+        date_iso = d.isoformat()
+        if date_iso in channel_archive["days"]:
+            continue  # 이미 과거 실행에서 채워진 날짜는 덮어쓰지 않음
+
+        holiday_name = holidays.get(date_iso)
+        channel_archive["days"][date_iso] = {
+            "date": date_iso,
+            "weekday_label": WEEKDAY_KR[d.weekday()],
+            "is_holiday": holiday_name is not None,
+            "holiday_name": holiday_name,
+            "lunch_groups": [],
+            "dinner_groups": [],
+            "no_data": True,
+        }
+        added += 1
+    return added
+
+
 def main():
     menu_final_path = OUTPUT_DATA_DIR / "menu_final.json"
     if not menu_final_path.exists():
@@ -100,7 +128,11 @@ def main():
             archive[name]["post_url"] = entry.get("post_url") or archive[name].get("post_url")
 
         if entry.get("status") != "success":
-            print(f"[merge_archive] {name}: 이번 실행 결과가 success가 아니라({entry.get('status')}) 기존 아카이브를 유지합니다.")
+            filled = fill_missing_week_with_placeholder(archive[name], holidays)
+            print(
+                f"[merge_archive] {name}: 이번 실행에서 식단표를 찾지 못했습니다"
+                f"({entry.get('status')}). 이번 주 {filled}일치를 '정보 없음'으로 채웠습니다."
+            )
             continue
 
         menu = entry.get("menu", {})

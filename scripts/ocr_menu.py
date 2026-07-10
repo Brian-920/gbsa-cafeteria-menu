@@ -1,13 +1,22 @@
 """
 [3단계] OCR 스크립트 (무료 버전 — Google Gemini API 사용)
-scrape_menu.py가 다운로드한 식단표 이미지를 Gemini Vision API로 읽어서
-구조화된 JSON(요일별/코너별 메뉴)으로 변환한다.
+
+scrape_menu.py가 만든 후보(최근 게시글 최대 MAX_CANDIDATES개)를 최신순으로
+순회하며 OCR한다. 각 후보에 대해:
+  1) 이미지를 실제로 읽을 수 있는 "식단표"인지 (Gemini가 days: []를 반환하면
+     식단표가 아닌 것으로 판단 — SYSTEM_PROMPT 지침)
+  2) 식단표라면, 그 안의 날짜가 "이번 주(월~금)"에 해당하는지 (rules.py의
+     menu_matches_current_week)
+두 조건을 모두 만족하는 첫 번째 후보를 채택한다. 5개 후보를 모두 시도해도
+못 찾으면 status를 "not_found"로 남기고, merge_archive.py가 이를 보고
+'정보 없음' 처리를 하게 된다.
 
 필요 환경변수: GEMINI_API_KEY (GitHub Actions Secrets에 등록 필요)
 발급 방법: https://aistudio.google.com/apikey 에서 무료로 발급 (신용카드 불필요)
 사용 모델: gemini-2.5-flash (2026-07 기준 무료 티어 지원 모델. gemini-2.0-flash는 단종되어 사용 불가)
 무료 할당량: 분당 10회, 일 250회 수준 (2026년 기준, 변동 가능)
-   -> 이 프로젝트는 주 1회, 이미지 3장만 처리하므로 무료 할당량에 전혀 문제 없음
+   -> 이 프로젝트는 주 1회, 채널당 최대 5장(최악의 경우 3채널 x 5장 = 15회)만
+      처리하므로 무료 할당량에 전혀 문제 없음
 """
 
 import json
@@ -16,6 +25,8 @@ from pathlib import Path
 
 from google import genai
 from google.genai import types
+
+import rules
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 # 주의: gemini-2.0-flash는 2026년 3월 3일부로 단종되어 무료 할당량이 0으로 처리됨
@@ -76,6 +87,61 @@ def ocr_image(client: "genai.Client", image_path: Path) -> dict:
     return json.loads(raw_text)
 
 
+def try_candidates(client: "genai.Client", candidates: list) -> dict:
+    """후보를 최신순으로 순회하며 '이번 주 식단표'를 찾을 때까지 OCR한다."""
+    attempts = []
+
+    for cand in candidates:
+        idx = cand["index"]
+
+        if cand.get("image_download_status") != "success":
+            print(f"  [후보 {idx}] 이미지 다운로드 실패로 건너뜀: {cand.get('image_download_status')}")
+            attempts.append({"index": idx, "result": "skipped_no_image"})
+            continue
+
+        image_path = Path(cand["local_image_path"])
+        try:
+            menu_json = ocr_image(client, image_path)
+        except Exception as e:
+            print(f"  [후보 {idx}] OCR 실패: {e}")
+            attempts.append({"index": idx, "result": "ocr_error", "error": str(e)})
+            continue
+
+        if not menu_json.get("days"):
+            print(f"  [후보 {idx}] 식단표가 아닌 것으로 판단 (notice: {menu_json.get('notice')!r})")
+            attempts.append({
+                "index": idx,
+                "result": "not_a_menu",
+                "notice": menu_json.get("notice"),
+            })
+            continue
+
+        if not rules.menu_matches_current_week(menu_json):
+            print(f"  [후보 {idx}] 식단표이나 이번 주 날짜와 불일치 (period_label: {menu_json.get('period_label')!r})")
+            attempts.append({
+                "index": idx,
+                "result": "date_mismatch",
+                "period_label": menu_json.get("period_label"),
+            })
+            continue
+
+        print(f"  [후보 {idx}] 채택: 이번 주 식단표 확인됨 (period_label: {menu_json.get('period_label')!r})")
+        attempts.append({"index": idx, "result": "matched"})
+        return {
+            "status": "success",
+            "post_url": cand.get("post_url"),
+            "source_title": cand.get("title"),
+            "matched_candidate_index": idx,
+            "menu": menu_json,
+            "candidate_attempts": attempts,
+        }
+
+    return {
+        "status": "not_found",
+        "candidate_attempts": attempts,
+    }
+
+
 def main():
     if not GEMINI_API_KEY:
         raise RuntimeError(
@@ -97,37 +163,25 @@ def main():
         label = entry.get("label", name)
         print(f"\n=== [{name}] OCR 시작 (Gemini) ===")
 
-        if entry.get("image_download_status") != "success":
-            print(f"이미지 다운로드가 안 되어 OCR 건너뜀: {entry.get('image_download_status')}")
+        candidates = entry.get("candidates") or []
+        if entry.get("status") != "success" or not candidates:
+            print(f"스크래핑 결과가 없어 OCR 건너뜀: {entry.get('status')}")
             menu_outputs.append({
                 "name": name,
                 "label": label,
-                "status": "skipped_no_image",
-                "post_url": entry.get("post_url"),
+                "status": "not_found",
+                "reason": entry.get("status"),
             })
             continue
 
-        image_path = Path(entry["local_image_path"])
-        try:
-            menu_json = ocr_image(client, image_path)
-            menu_outputs.append({
-                "name": name,
-                "label": label,
-                "status": "success",
-                "post_url": entry.get("post_url"),
-                "source_title": entry.get("title"),
-                "menu": menu_json,
-            })
-            print(f"OCR 성공: {menu_json.get('period_label')}")
-        except Exception as e:
-            print(f"[오류] {name} OCR 실패: {e}")
-            menu_outputs.append({
-                "name": name,
-                "label": label,
-                "status": "error",
-                "error": str(e),
-                "post_url": entry.get("post_url"),
-            })
+        outcome = try_candidates(client, candidates)
+        outcome["name"] = name
+        outcome["label"] = label
+
+        if outcome["status"] != "success":
+            print(f"[{name}] 후보 {len(candidates)}개 내에서 이번 주 식단표를 찾지 못함 -> not_found 처리")
+
+        menu_outputs.append(outcome)
 
     out_path = DATA_DIR / "menu_final.json"
     out_path.write_text(json.dumps(menu_outputs, ensure_ascii=False, indent=2), encoding="utf-8")
