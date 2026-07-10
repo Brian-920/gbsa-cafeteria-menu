@@ -26,6 +26,106 @@ ASSETS_DIR = Path(__file__).parent.parent / "assets"
 
 KST = timezone(timedelta(hours=9))
 
+# 서비스 워커가 캐시할 정적 자산 목록 (sw.js 기준 상대경로).
+# 매주 배포 때마다 CACHE_VERSION이 바뀌므로, 이 목록 자체는 안 바뀌어도
+# 브라우저는 새 버전의 캐시로 자동 교체한다.
+SW_PRECACHE_URLS = [
+    "./",
+    "index.html",
+    "styles.css",
+    "manifest.json",
+    "icons/icon-192.png",
+    "icons/icon-512.png",
+    "icons/apple-touch-icon.png",
+]
+
+SW_TEMPLATE = """// 자동 생성 파일 — scripts/generate_site.py 가 매주 배포 시점마다 다시 씀.
+// CACHE_VERSION이 바뀌면(=매주 월요일 재배포) 아래 activate 단계에서
+// 이전 주 캐시를 지우고 새 캐시로 자동 교체한다.
+const CACHE_VERSION = "__SW_CACHE_VERSION__";
+const CACHE_NAME = "gbsa-menu-" + CACHE_VERSION;
+const PRECACHE_URLS = __SW_PRECACHE_URLS_JSON__;
+const FONT_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
+
+self.addEventListener("install", function (event) {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(function (cache) {
+      return cache.addAll(PRECACHE_URLS);
+    }).then(function () {
+      return self.skipWaiting();
+    })
+  );
+});
+
+self.addEventListener("activate", function (event) {
+  event.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(
+        keys
+          .filter(function (key) { return key !== CACHE_NAME; })
+          .map(function (key) { return caches.delete(key); })
+      );
+    }).then(function () {
+      return self.clients.claim();
+    })
+  );
+});
+
+function staleWhileRevalidate(request) {
+  return caches.open(CACHE_NAME).then(function (cache) {
+    return cache.match(request).then(function (cached) {
+      var networkFetch = fetch(request).then(function (response) {
+        if (response && response.status === 200) {
+          cache.put(request, response.clone());
+        }
+        return response;
+      }).catch(function () { return cached; });
+      return cached || networkFetch;
+    });
+  });
+}
+
+self.addEventListener("fetch", function (event) {
+  var request = event.request;
+  if (request.method !== "GET") return;
+
+  var url = new URL(request.url);
+
+  // 페이지 이동(주소창 진입, 새로고침 등): 캐시 우선, 네트워크는 폴백.
+  // 매주 배포 시 CACHE_VERSION이 바뀌어 캐시가 자동 교체되므로
+  // 평소에는 서버 요청 없이 즉시 로드된다.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      caches.match("index.html").then(function (cached) {
+        return cached || fetch(request);
+      })
+    );
+    return;
+  }
+
+  // 구글 폰트: 자주 안 바뀌므로 캐시 우선 + 백그라운드 갱신.
+  if (FONT_HOSTS.indexOf(url.hostname) !== -1) {
+    event.respondWith(staleWhileRevalidate(request));
+    return;
+  }
+
+  // 같은 출처의 정적 자산(css, manifest, 아이콘 등): 캐시 우선.
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      caches.match(request).then(function (cached) {
+        return cached || fetch(request).then(function (response) {
+          if (response && response.status === 200) {
+            var copy = response.clone();
+            caches.open(CACHE_NAME).then(function (cache) { cache.put(request, copy); });
+          }
+          return response;
+        });
+      })
+    );
+  }
+});
+"""
+
 CHANNEL_ORDER = ["gbsa", "rdb_center", "nano_gaeram"]
 
 
@@ -463,6 +563,18 @@ const FACILITY_ORDER = __FACILITY_ORDER_JSON__;
   });
 })();
 </script>
+<script>
+  // 서비스 워커 등록 — 등록되면 재방문 시 대부분의 요청이 캐시에서 처리되어
+  // GitHub Pages 월간 대역폭 소모가 크게 줄어든다. 매주 배포마다 sw.js 내용이
+  // 바뀌므로 브라우저가 새 버전을 감지해 캐시를 자동으로 최신 메뉴로 교체한다.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function (err) {
+        console.warn("서비스 워커 등록 실패:", err);
+      });
+    });
+  }
+</script>
 </body>
 </html>
 """
@@ -516,6 +628,15 @@ def copy_static_assets():
     )
 
 
+def write_service_worker(version: str):
+    """sw.js를 SITE_DIR에 생성한다. version이 바뀌면(=매주 배포) 브라우저가
+    새 서비스 워커로 교체하면서 이전 주 캐시를 자동으로 지운다."""
+    sw = SW_TEMPLATE
+    sw = sw.replace("__SW_CACHE_VERSION__", version)
+    sw = sw.replace("__SW_PRECACHE_URLS_JSON__", json.dumps(SW_PRECACHE_URLS, ensure_ascii=False))
+    (SITE_DIR / "sw.js").write_text(sw, encoding="utf-8")
+
+
 def main():
     if not ARCHIVE_PATH.exists():
         print("data/archive.json이 없습니다. merge_archive.py를 먼저 실행하세요.")
@@ -523,11 +644,16 @@ def main():
 
     archive = json.loads(ARCHIVE_PATH.read_text(encoding="utf-8"))
     html = build_html(archive)
+    # 배포 시각을 캐시 버전으로 사용 — 매주 재배포 때마다 값이 바뀌어
+    # 서비스 워커가 이전 캐시를 자동으로 교체하게 만든다.
+    sw_version = datetime.now(KST).strftime("%Y%m%d%H%M%S")
 
     SITE_DIR.mkdir(parents=True, exist_ok=True)
     (SITE_DIR / "index.html").write_text(html, encoding="utf-8")
     copy_static_assets()
+    write_service_worker(sw_version)
     print(f"사이트 생성 완료: {SITE_DIR / 'index.html'}")
+    print(f"서비스 워커 캐시 버전: {sw_version}")
 
 
 if __name__ == "__main__":
