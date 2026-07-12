@@ -569,8 +569,29 @@ const FACILITY_ORDER = __FACILITY_ORDER_JSON__;
   // 바뀌므로 브라우저가 새 버전을 감지해 캐시를 자동으로 최신 메뉴로 교체한다.
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js").catch(function (err) {
-        console.warn("서비스 워커 등록 실패:", err);
+      // updateViaCache: "none" — sw.js 파일 자체를 브라우저가 HTTP 캐싱하지 않도록 강제.
+      navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
+        .then(function (reg) {
+          // PWA를 백그라운드에서 열어뒀다가 다시 포그라운드로 돌아올 때마다
+          // 서버에 새 sw.js가 있는지 강제로 확인. 브라우저 자체 스케줄(수시간~24시간)에
+          // 의존하지 않게 되어, 배포 직후에도 앱을 열면 곧바로 갱신 체크가 일어난다.
+          document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === "visible") {
+              reg.update().catch(function () {});
+            }
+          });
+        })
+        .catch(function (err) {
+          console.warn("서비스 워커 등록 실패:", err);
+        });
+
+      // 새 서비스 워커가 컨트롤을 넘겨받으면(=활성화되면) 자동으로 새로고침해서
+      // 사용자가 수동으로 앱을 껐다 켤 필요 없이 바로 최신 메뉴를 보게 한다.
+      var refreshing = false;
+      navigator.serviceWorker.addEventListener("controllerchange", function () {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
       });
     });
   }
