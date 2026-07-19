@@ -1,7 +1,7 @@
 // 자동 생성 파일 — scripts/generate_site.py 가 매주 배포 시점마다 다시 씀.
 // CACHE_VERSION이 바뀌면(=매주 월요일 재배포) 아래 activate 단계에서
 // 이전 주 캐시를 지우고 새 캐시로 자동 교체한다.
-const CACHE_VERSION = "20260713100200";
+const CACHE_VERSION = "20260720074528";
 const CACHE_NAME = "gbsa-menu-" + CACHE_VERSION;
 const PRECACHE_URLS = ["./", "index.html", "styles.css", "manifest.json", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 const FONT_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
