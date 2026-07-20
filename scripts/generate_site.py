@@ -245,13 +245,27 @@ const FACILITY_ORDER = __FACILITY_ORDER_JSON__;
     return all.sort();
   }
 
+  // 날짜 배열(오름차순 정렬)에서 "오늘"에 해당하는 기본 인덱스를 찾는다.
+  // 1) 오늘과 정확히 일치하는 날짜가 있으면 그 인덱스.
+  // 2) 없으면(주말/공휴일/데이터 누락 등) 오늘보다 이전인 날짜 중 가장 최근 날짜.
+  //    -- 이전 버전은 "오늘이 마지막 날짜보다 미래인지"만 판별해서, 두 주 사이의
+  //       주말처럼 배열 "중간"에 뚫린 구멍에 오늘이 걸리면 무조건 배열의
+  //       첫 번째(가장 오래된) 날짜로 튕겨버리는 버그가 있었다.
+  // 3) 오늘보다 이전 날짜가 하나도 없으면(아카이브 시작 전) 가장 이른 날짜.
+  function findDefaultIndex(dates, t) {
+    if (!dates.length) return 0;
+    var exact = dates.indexOf(t);
+    if (exact !== -1) return exact;
+    for (var i = dates.length - 1; i >= 0; i--) {
+      if (dates[i] < t) return i;
+    }
+    return 0;
+  }
+
   function initState() {
     ALL_DATES = unionDates();
     var t = todayISO();
-    var idx = ALL_DATES.indexOf(t);
-    if (idx === -1) {
-      idx = ALL_DATES.length === 0 ? 0 : (t > ALL_DATES[ALL_DATES.length - 1] ? ALL_DATES.length - 1 : 0);
-    }
+    var idx = findDefaultIndex(ALL_DATES, t);
     globalActiveDate = ALL_DATES.length ? ALL_DATES[idx] : null;
     windowStart = Math.min(
       Math.max(0, idx - Math.floor(WINDOW_SIZE / 2)),
@@ -260,8 +274,8 @@ const FACILITY_ORDER = __FACILITY_ORDER_JSON__;
 
     FACILITY_ORDER.forEach(function (key) {
       var fDays = MENU_DATA[key].days || [];
-      var fIdx = fDays.findIndex(function (d) { return d.date === t; });
-      if (fIdx === -1) fIdx = 0;
+      var fDates = fDays.map(function (d) { return d.date; });
+      var fIdx = findDefaultIndex(fDates, t);
       state[key] = { expanded: false, dateIndex: fIdx };
     });
   }
