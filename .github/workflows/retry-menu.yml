@@ -1,0 +1,86 @@
+name: "구내식당 식단표 재시도(2시간마다)"
+
+# 식당이 게시글을 늦게 올릴 때를 대비한 안전망 워크플로우.
+#
+# 평일(월~금) 09~23시(KST) 사이 2시간마다 트리거되지만, 실제로
+# 스크래핑/OCR/배포까지 다시 하는 건 "이번 주 데이터가 아직 다 안 채워졌을
+# 때"뿐이다. check_week_complete.py가 이미 다 채워졌다고 판단하면
+# 뒤이은 단계는 전부 건너뛰고 몇 초 만에 끝난다 — 즉, 정상적으로 다 채워진
+# 주라면 사실상 다음 "진짜" 실행은 다음 주 월요일 07:00(update-menu.yml)이다.
+#
+# 09시 = KST, update-menu.yml(매주 월요일 07:00 KST)의 다음 타이밍부터 시작.
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 0,2,4,6,8,10,12,14 * * 1-5"
+
+permissions:
+  contents: write
+
+jobs:
+  retry-if-incomplete:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 0) 이번 주 데이터 완료 여부 확인
+        id: check
+        run: python scripts/check_week_complete.py
+
+      - name: 의존성 설치
+        if: steps.check.outputs.complete == 'false'
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: 1) 식단표 이미지 스크래핑
+        if: steps.check.outputs.complete == 'false'
+        run: python scripts/scrape_menu.py
+
+      - name: 2) OCR로 구조화 (Gemini Vision API, 무료)
+        if: steps.check.outputs.complete == 'false'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/ocr_menu.py
+
+      - name: 3) 아카이브 병합 (공휴일 판정 포함)
+        if: steps.check.outputs.complete == 'false'
+        env:
+          KOREA_HOLIDAY_API_KEY: ${{ secrets.KOREA_HOLIDAY_API_KEY }}
+        run: python scripts/merge_archive.py
+
+      - name: 4) 웹페이지 생성
+        if: steps.check.outputs.complete == 'false'
+        run: python scripts/generate_site.py
+
+      - name: 디버그용 결과물 업로드 (원본 이미지, JSON)
+        if: always() && steps.check.outputs.complete == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: menu-retry-output
+          path: |
+            output/images/
+            output/data/
+          retention-days: 14
+
+      - name: 아카이브(data/archive.json) 저장소에 커밋
+        if: success() && steps.check.outputs.complete == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/archive.json data/holidays_cache.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "chore: 식단 아카이브 재시도 갱신 [skip ci]"
+          git push
+
+      - name: GitHub Pages로 배포
+        uses: peaceiris/actions-gh-pages@v4
+        if: success() && steps.check.outputs.complete == 'false'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output/site
