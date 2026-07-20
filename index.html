@@ -26,12 +26,12 @@
       <span class="material-symbols-outlined text-primary text-[20px] md:text-[24px]">restaurant</span>
       <h1 class="text-[16px] md:text-headline-md font-bold text-primary leading-tight whitespace-nowrap">광교테크노밸리 구내식당 식단표</h1>
     </div>
-    <span class="hidden md:inline text-label-md text-on-surface-variant">마지막 업데이트: 2026-07-20 09:57(KST)</span>
+    <span class="hidden md:inline text-label-md text-on-surface-variant">마지막 업데이트: 2026-07-20 15:21(KST)</span>
   </div>
 </header>
 
 <main class="max-w-[1280px] mx-auto px-4 md:px-8 py-5 md:py-8 space-y-4 md:space-y-6">
-  <p class="md:hidden text-label-md text-on-surface-variant">마지막 업데이트 : 2026-07-20 09:57(KST)</p>
+  <p class="md:hidden text-label-md text-on-surface-variant">마지막 업데이트 : 2026-07-20 15:21(KST)</p>
 
   <div id="installBanner" class="hidden items-start justify-between gap-3 bg-blue-50 border border-blue-100 rounded-xl p-3 md:p-4">
     <div class="flex items-start gap-2 md:gap-3">
@@ -101,13 +101,27 @@ const FACILITY_ORDER = ["gbsa", "rdb_center", "nano_gaeram"];
     return all.sort();
   }
 
+  // 날짜 배열(오름차순 정렬)에서 "오늘"에 해당하는 기본 인덱스를 찾는다.
+  // 1) 오늘과 정확히 일치하는 날짜가 있으면 그 인덱스.
+  // 2) 없으면(주말/공휴일/데이터 누락 등) 오늘보다 이전인 날짜 중 가장 최근 날짜.
+  //    -- 이전 버전은 "오늘이 마지막 날짜보다 미래인지"만 판별해서, 두 주 사이의
+  //       주말처럼 배열 "중간"에 뚫린 구멍에 오늘이 걸리면 무조건 배열의
+  //       첫 번째(가장 오래된) 날짜로 튕겨버리는 버그가 있었다.
+  // 3) 오늘보다 이전 날짜가 하나도 없으면(아카이브 시작 전) 가장 이른 날짜.
+  function findDefaultIndex(dates, t) {
+    if (!dates.length) return 0;
+    var exact = dates.indexOf(t);
+    if (exact !== -1) return exact;
+    for (var i = dates.length - 1; i >= 0; i--) {
+      if (dates[i] < t) return i;
+    }
+    return 0;
+  }
+
   function initState() {
     ALL_DATES = unionDates();
     var t = todayISO();
-    var idx = ALL_DATES.indexOf(t);
-    if (idx === -1) {
-      idx = ALL_DATES.length === 0 ? 0 : (t > ALL_DATES[ALL_DATES.length - 1] ? ALL_DATES.length - 1 : 0);
-    }
+    var idx = findDefaultIndex(ALL_DATES, t);
     globalActiveDate = ALL_DATES.length ? ALL_DATES[idx] : null;
     windowStart = Math.min(
       Math.max(0, idx - Math.floor(WINDOW_SIZE / 2)),
@@ -116,8 +130,8 @@ const FACILITY_ORDER = ["gbsa", "rdb_center", "nano_gaeram"];
 
     FACILITY_ORDER.forEach(function (key) {
       var fDays = MENU_DATA[key].days || [];
-      var fIdx = fDays.findIndex(function (d) { return d.date === t; });
-      if (fIdx === -1) fIdx = 0;
+      var fDates = fDays.map(function (d) { return d.date; });
+      var fIdx = findDefaultIndex(fDates, t);
       state[key] = { expanded: false, dateIndex: fIdx };
     });
   }
