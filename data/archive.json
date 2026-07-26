@@ -678,12 +678,57 @@
             ]
           }
         ]
+      },
+      "2026-07-27": {
+        "date": "2026-07-27",
+        "weekday_label": "월요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [],
+        "dinner_groups": [],
+        "no_data": true
+      },
+      "2026-07-28": {
+        "date": "2026-07-28",
+        "weekday_label": "화요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [],
+        "dinner_groups": [],
+        "no_data": true
+      },
+      "2026-07-29": {
+        "date": "2026-07-29",
+        "weekday_label": "수요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [],
+        "dinner_groups": [],
+        "no_data": true
+      },
+      "2026-07-30": {
+        "date": "2026-07-30",
+        "weekday_label": "목요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [],
+        "dinner_groups": [],
+        "no_data": true
+      },
+      "2026-07-31": {
+        "date": "2026-07-31",
+        "weekday_label": "금요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [],
+        "dinner_groups": [],
+        "no_data": true
       }
     }
   },
   "rdb_center": {
     "label": "경기R&DB센터 구내식당",
-    "post_url": "https://pf.kakao.com/_XCVXb/113990543",
+    "post_url": "https://pf.kakao.com/_XCVXb/114060970",
     "days": {
       "2026-07-06": {
         "date": "2026-07-06",
@@ -1560,12 +1605,351 @@
             "items": []
           }
         ]
+      },
+      "2026-07-27": {
+        "date": "2026-07-27",
+        "weekday_label": "월요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "백순대볶음",
+              "궁중떡볶이",
+              "도토리묵무침",
+              "콩나물국",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "치즈돈까스",
+              "야채쫄면",
+              "단무지무침",
+              "콩나물국",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          },
+          {
+            "group_name": "플러스바",
+            "items": [
+              "그린샐러드"
+            ]
+          },
+          {
+            "group_name": "현미밥",
+            "items": [
+              "현미밥"
+            ]
+          },
+          {
+            "group_name": "음료",
+            "items": [
+              "후식차, 숭늉"
+            ]
+          },
+          {
+            "group_name": "Take Out",
+            "items": [
+              "카프레제샐러드&드레싱",
+              "한끼슬림팩 or 한끼선식팩",
+              "샌드위치&음료"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "일반식",
+            "items": [
+              "닭갈비",
+              "고구마맛탕",
+              "양파초절임",
+              "다시마무국",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          }
+        ]
+      },
+      "2026-07-28": {
+        "date": "2026-07-28",
+        "weekday_label": "화요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "홍제오리볶음밥",
+              "모듬고로케",
+              "불어묵볶음",
+              "상추유자무침",
+              "유부된장국",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "간장불고기",
+              "불어묵볶음",
+              "아삭이고추쌈장무침",
+              "유부된장국",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          },
+          {
+            "group_name": "플러스바",
+            "items": [
+              "그린샐러드"
+            ]
+          },
+          {
+            "group_name": "현미밥",
+            "items": [
+              "현미밥"
+            ]
+          },
+          {
+            "group_name": "음료",
+            "items": [
+              "후식차, 숭늉"
+            ]
+          },
+          {
+            "group_name": "Take Out",
+            "items": [
+              "단호박고구마샐러드&드레싱",
+              "한끼슬림팩 or 한끼선식팩",
+              "샌드위치&음료"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "일반식",
+            "items": [
+              "참치김치찌개",
+              "야채계란말이",
+              "햄감자채볶음",
+              "양념깻잎지",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          }
+        ]
+      },
+      "2026-07-29": {
+        "date": "2026-07-29",
+        "weekday_label": "수요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "코다리시래기조림",
+              "두부찜",
+              "새송이버섯볶음",
+              "계란국",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "얼큰짬뽕",
+              "꿔바로우",
+              "삼색거자냉채",
+              "반달단무지",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          },
+          {
+            "group_name": "플러스바",
+            "items": [
+              "그린샐러드"
+            ]
+          },
+          {
+            "group_name": "현미밥",
+            "items": [
+              "현미밥"
+            ]
+          },
+          {
+            "group_name": "음료",
+            "items": [
+              "후식차, 숭늉"
+            ]
+          },
+          {
+            "group_name": "Take Out",
+            "items": [
+              "크레미감자샐러드&드레싱",
+              "한끼슬림팩 or 한끼선식팩",
+              "샌드위치&음료"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "일반식",
+            "items": [
+              "무생채비빔밥",
+              "가지튀김",
+              "맛살야채볶음",
+              "부추겉절이",
+              "홍합탕"
+            ]
+          }
+        ]
+      },
+      "2026-07-30": {
+        "date": "2026-07-30",
+        "weekday_label": "목요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "토마토계란덮밥",
+              "함박스테이크",
+              "모듬채소구이",
+              "얼갈이된장국",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "안동찜닭",
+              "햄야채볶음",
+              "궁채장아찌",
+              "얼갈이된장국",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          },
+          {
+            "group_name": "플러스바",
+            "items": [
+              "그린샐러드"
+            ]
+          },
+          {
+            "group_name": "현미밥",
+            "items": [
+              "현미밥"
+            ]
+          },
+          {
+            "group_name": "음료",
+            "items": [
+              "후식차, 숭늉"
+            ]
+          },
+          {
+            "group_name": "Take Out",
+            "items": [
+              "홍제오리샐러드&드레싱",
+              "한끼슬림팩 or 한끼선식팩",
+              "샌드위치&음료"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "일반식",
+            "items": [
+              "설렁탕*소면사리",
+              "동그랑땡전",
+              "탕평채",
+              "호박새우젓볶음",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          }
+        ]
+      },
+      "2026-07-31": {
+        "date": "2026-07-31",
+        "weekday_label": "금요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "오징어두부두루치기",
+              "단호박조림",
+              "느타리피망볶음",
+              "바지락미역국",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "김치볶음밥",
+              "볼카츠",
+              "크림펜네",
+              "오복지무침",
+              "바지락미역국",
+              "백미밥",
+              "포기김치,깍두기"
+            ]
+          },
+          {
+            "group_name": "플러스바",
+            "items": [
+              "그린샐러드"
+            ]
+          },
+          {
+            "group_name": "현미밥",
+            "items": [
+              "현미밥"
+            ]
+          },
+          {
+            "group_name": "음료",
+            "items": [
+              "후식차, 숭늉"
+            ]
+          },
+          {
+            "group_name": "Take Out",
+            "items": [
+              "닭가슴살샐러드&드레싱",
+              "한끼슬림팩 or 한끼선식팩",
+              "샌드위치&음료"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "일반식",
+            "items": []
+          }
+        ]
       }
     }
   },
   "nano_gaeram": {
     "label": "한국나노기술원 구내식당",
-    "post_url": "https://pf.kakao.com/_PxhQqX/114008034",
+    "post_url": "https://pf.kakao.com/_PxhQqX/114076712",
     "days": {
       "2026-07-06": {
         "date": "2026-07-06",
@@ -2259,6 +2643,245 @@
         "dinner_groups": [
           {
             "group_name": "저녁",
+            "items": [
+              "석식미운영"
+            ]
+          }
+        ]
+      },
+      "2026-07-27": {
+        "date": "2026-07-27",
+        "weekday_label": "월요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "육개장칼국수(탕)",
+              "추가밥",
+              "통두부구이*양념간장",
+              "고추어묵볶음",
+              "얼갈이겉절이",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "제육김치덮밥",
+              "시래기국",
+              "카레사모사",
+              "고추어묵볶음",
+              "오이양파무침",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "items": [
+              "얼큰순두부찌개",
+              "쌀밥",
+              "잡채완자전*케찹",
+              "참치무조림",
+              "시금치나물",
+              "포기김치"
+            ]
+          }
+        ]
+      },
+      "2026-07-28": {
+        "date": "2026-07-28",
+        "weekday_label": "화요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "가지뿌리채소밥",
+              "온도토리묵국",
+              "미트볼조림",
+              "비빔당면",
+              "저속노화샐러드",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "순살돈까스",
+              "미니야채볶음밥",
+              "가쓰오장국",
+              "쫄면무침",
+              "저속노화샐러드",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "items": [
+              "삼계닭죽",
+              "추가밥",
+              "계란장조림",
+              "고추장떡",
+              "오이지무침",
+              "깍두기"
+            ]
+          }
+        ]
+      },
+      "2026-07-29": {
+        "date": "2026-07-29",
+        "weekday_label": "수요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "전주식콩나물국밥(탕)",
+              "쌀밥/잡곡밥",
+              "백순대볶음*들깨초장",
+              "미역줄기야채볶음",
+              "연근흑임자무침",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "김치말이국수",
+              "쌀밥",
+              "언양식불고기",
+              "연근흑임자무침",
+              "지마구",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "items": [
+              "뼈없는감자탕(탕)",
+              "쌀밥",
+              "완자브로콜리조림",
+              "맛살겨자채",
+              "고추지무침",
+              "깍두기"
+            ]
+          }
+        ]
+      },
+      "2026-07-30": {
+        "date": "2026-07-30",
+        "weekday_label": "목요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "고등어카레구이",
+              "쌀밥/잡곡밥",
+              "얼큰콩나물국",
+              "어묵햄조림",
+              "무생채",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "춘장닭갈비",
+              "쌀밥/잡곡밥",
+              "얼큰콩나물국",
+              "볶음우동",
+              "무생채",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "items": [
+              "햄김치볶음밥",
+              "어묵국",
+              "라구파스타",
+              "마늘종무침",
+              "포기김치",
+              "숭늉"
+            ]
+          }
+        ]
+      },
+      "2026-07-31": {
+        "date": "2026-07-31",
+        "weekday_label": "금요일",
+        "is_holiday": false,
+        "holiday_name": null,
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "사골손만두떡국(탕)",
+              "쌀밥/잡곡밥",
+              "오징어초무침",
+              "호박건새우볶음",
+              "숙주나물",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "파기름계란볶음밥",
+              "맑은우동국물",
+              "짜장소스",
+              "북경식꿔바로우",
+              "단무지락교무침"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
             "items": [
               "석식미운영"
             ]
