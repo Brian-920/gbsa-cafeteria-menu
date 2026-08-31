@@ -22,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 저장소 체크아웃
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Python 설치
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -61,7 +61,7 @@ jobs:
 
       - name: 디버그용 결과물 업로드 (원본 이미지, JSON)
         if: always() && steps.check.outputs.complete == 'false'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: menu-retry-output
           path: |
