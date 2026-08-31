@@ -1,7 +1,7 @@
 {
   "gbsa": {
     "label": "경기도경제과학진흥원 구내식당",
-    "post_url": "https://pf.kakao.com/_MgUGn/114331299",
+    "post_url": "https://pf.kakao.com/_MgUGn/114419916",
     "days": {
       "2026-07-06": {
         "date": "2026-07-06",
@@ -1875,45 +1875,245 @@
         "weekday_label": "월요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "백미밥/잡곡밥",
+              "시금치된장국",
+              "생선까스/타르소스",
+              "김치비빔국수",
+              "건파래볶음",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "생아채육회비빔밥",
+              "시금치된장국",
+              "연두부&양념장",
+              "건파래볶음",
+              "배추김치"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": [
+              "누룽지숭늉"
+            ]
+          },
+          {
+            "group_name": "비빔코너",
+            "items": [
+              "고추장&참기름&기본양념"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-09-01": {
         "date": "2026-09-01",
         "weekday_label": "화요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "백미밥/잡곡밥",
+              "들깨미역국",
+              "고구마닭갈비",
+              "표고버섯양배추볶음",
+              "콩나물겨자채",
+              "배추김치"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "냉모밀",
+              "새우볶음밥",
+              "김치만두찜",
+              "마카로니샐러드",
+              "단무지"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": [
+              "아이스오미자차"
+            ]
+          },
+          {
+            "group_name": "비빔코너",
+            "items": [
+              "고추장&참기름&기본양념"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-09-02": {
         "date": "2026-09-02",
         "weekday_label": "수요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "백미밥/잡곡밥",
+              "어묵탕",
+              "간장불고기",
+              "새송이버섯볶음",
+              "숙주나물",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "돼지국밥&소면",
+              "백미밥",
+              "오징어오이초무침",
+              "부추겉절이",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": [
+              "야채샐러드"
+            ]
+          },
+          {
+            "group_name": "비빔코너",
+            "items": [
+              "고추장&참기름&기본양념"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-09-03": {
         "date": "2026-09-03",
         "weekday_label": "목요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "백미밥/잡곡밥",
+              "콩나물국",
+              "돈육김치찜",
+              "모듬어묵볶음",
+              "마늘쫑무침",
+              "배추김치"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "중화식잡채덮밥",
+              "짬뽕국",
+              "집게발튀김&케찹",
+              "단무지무침",
+              "배추김치"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": [
+              "아이스유자차"
+            ]
+          },
+          {
+            "group_name": "비빔코너",
+            "items": [
+              "고추장&참기름&기본양념"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-09-04": {
         "date": "2026-09-04",
         "weekday_label": "금요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "백미밥/잡곡밥",
+              "두부고추장찌개",
+              "떡갈비야채조림",
+              "오이깍두기",
+              "미역줄기볶음",
+              "배추김치"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "지코바밥",
+              "미나리셀프우동",
+              "모듬감자튀김",
+              "단무지",
+              "배추김치"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": [
+              "앙송이스프"
+            ]
+          },
+          {
+            "group_name": "비빔코너",
+            "items": [
+              "고추장&참기름&기본양념"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       }
     }
   },
