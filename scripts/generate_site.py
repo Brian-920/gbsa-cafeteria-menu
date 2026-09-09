@@ -161,6 +161,14 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
   body { font-family: 'Hanken Grotesk', 'Pretendard', 'Noto Sans KR', sans-serif; background-color: #f7f9fb; color: #191c1e; -webkit-font-smoothing: antialiased; }
 </style>
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MVMH3JR6LL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MVMH3JR6LL');
+</script>
 </head>
 <body class="bg-surface">
 
