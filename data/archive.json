@@ -6016,7 +6016,7 @@
   },
   "nano_gaeram": {
     "label": "한국나노기술원 구내식당",
-    "post_url": "https://pf.kakao.com/_PxhQqX/114500454",
+    "post_url": "https://pf.kakao.com/_PxhQqX/114574972",
     "days": {
       "2026-07-06": {
         "date": "2026-07-06",
@@ -8376,45 +8376,239 @@
         "weekday_label": "월요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "점심 (11:30~13:10) A코너",
+            "items": [
+              "순두부짬뽕국",
+              "쌀밥/잡곡밥",
+              "레몬크림탕수",
+              "숙주햄볶음",
+              "얼갈이겉절이",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "점심 (11:30~13:10) B코너",
+            "items": [
+              "지코바치밥",
+              "유부가쓰오국물",
+              "생선까스*타르S",
+              "숙주햄볶음",
+              "마늘종무침",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "하루를 마무리 하는 저녁 (17:30~18:30)",
+            "items": [
+              "고깃집깍두기볶음밥",
+              "*계란후라이",
+              "시래기국",
+              "콩나물김가루무침",
+              "숭늉",
+              "포기김치"
+            ]
+          }
+        ]
       },
       "2026-09-15": {
         "date": "2026-09-15",
         "weekday_label": "화요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "점심 (11:30~13:10) A코너",
+            "items": [
+              "코다리강정",
+              "쌀밥/잡곡밥",
+              "근대국",
+              "환어묵볶음",
+              "꼬시래기무침",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "점심 (11:30~13:10) B코너",
+            "items": [
+              "차돌된장찌개(뚝)",
+              "쌀밥/잡곡밥",
+              "날치알계란찜",
+              "환어묵볶음",
+              "브로콜리*초장",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "하루를 마무리 하는 저녁 (17:30~18:30)",
+            "items": [
+              "베테랑칼국수",
+              "추가밥",
+              "멘치까스*어니언S",
+              "오이지무침",
+              "포기김치"
+            ]
+          }
+        ]
       },
       "2026-09-16": {
         "date": "2026-09-16",
         "weekday_label": "수요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "점심 (11:30~13:10) A코너",
+            "items": [
+              "콩나물밥*양념장",
+              "미역국",
+              "두부조림",
+              "한식잡채",
+              "무생채",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "점심 (11:30~13:10) B코너",
+            "items": [
+              "왕돈까스",
+              "미니밥",
+              "미역국",
+              "야채쫄면",
+              "깍둑단무지무침",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "하루를 마무리 하는 저녁 (17:30~18:30)",
+            "items": [
+              "소고기장터국밥(탕)",
+              "쌀밥",
+              "오징어김치전",
+              "알감자조림",
+              "숙주나물",
+              "깍두기"
+            ]
+          }
+        ]
       },
       "2026-09-17": {
         "date": "2026-09-17",
         "weekday_label": "목요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "점심 (11:30~13:10) A코너",
+            "items": [
+              "호박짜글이찌개",
+              "쌀밥/잡곡밥",
+              "미트볼마늘조림",
+              "청포묵미나리무침",
+              "무말랭이",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "점심 (11:30~13:10) B코너",
+            "items": [
+              "고추장불고기",
+              "쌀밥/잡곡밥",
+              "감자수제비",
+              "청포묵미나리무침",
+              "양배추쌈",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "하루를 마무리 하는 저녁 (17:30~18:30)",
+            "items": [
+              "고추참치볶음밥",
+              "부들어묵국",
+              "연근새우깡",
+              "로제떡볶이",
+              "코울슬로",
+              "포기김치"
+            ]
+          }
+        ]
       },
       "2026-09-18": {
         "date": "2026-09-18",
         "weekday_label": "금요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "점심 (11:30~13:10) A코너",
+            "items": [
+              "마파두부덮밥",
+              "쌀밥/잡곡밥",
+              "계란국",
+              "볶음짜장면",
+              "야채양장피",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "점심 (11:30~13:10) B코너",
+            "items": [
+              "비벼주는나물밥",
+              "근대국",
+              "언양식불고기육전",
+              "매콤순두부",
+              "오이야채무침",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "하루를 마무리 하는 저녁 (17:30~18:30)",
+            "items": [
+              "석식미운영"
+            ]
+          }
+        ]
       }
     }
   }
