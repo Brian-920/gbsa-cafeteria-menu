@@ -13,10 +13,10 @@ scrape_menu.py가 만든 후보(최근 게시글 최대 MAX_CANDIDATES개)를 �
 
 필요 환경변수: GEMINI_API_KEY (GitHub Actions Secrets에 등록 필요)
 발급 방법: https://aistudio.google.com/apikey 에서 무료로 발급 (신용카드 불필요)
-사용 모델: gemini-2.5-flash (2026-07 기준 무료 티어 지원 모델. gemini-2.0-flash는 단종되어 사용 불가)
-무료 할당량: 분당 10회, 일 250회 수준 (2026년 기준, 변동 가능)
+사용 모델: gemini-3.8-flash (2026-09 기준 무료 티어 지원 모델. gemini-2.0-flash는 단종되어 사용 불가)
+무료 할당량: 분당 5회, 일 20회 수준 (2026-09 AI Studio 기준, 변동 가능)
    -> 이 프로젝트는 주 1회, 채널당 최대 5장(최악의 경우 3채널 x 5장 = 15회)만
-      처리하므로 무료 할당량에 전혀 문제 없음
+      처리하므로 무료 할당량 이내 (재시도 워크플로가 같은 날 겹치면 초과 가능)
 """
 
 import json
@@ -30,8 +30,8 @@ import rules
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 # 주의: gemini-2.0-flash는 2026년 3월 3일부로 단종되어 무료 할당량이 0으로 처리됨
-# (2026-07 기준 무료 티어 최신 모델인 2.5-flash 사용. 추후 또 세대교체되면 업데이트 필요)
-MODEL = "gemini-2.5-flash"
+# (2026-09 기준 무료 티어 지원 최신 Flash 모델인 3.8-flash 사용. 추후 또 세대교체되면 업데이트 필요)
+MODEL = "gemini-3.8-flash"
 
 DATA_DIR = Path(__file__).parent.parent / "output" / "data"
 
