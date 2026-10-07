@@ -1,7 +1,7 @@
 {
   "gbsa": {
     "label": "경기도경제과학진흥원 구내식당",
-    "post_url": "https://pf.kakao.com/_MgUGn/114706943",
+    "post_url": "https://pf.kakao.com/_MgUGn/114803866",
     "days": {
       "2026-07-06": {
         "date": "2026-07-06",
@@ -3032,45 +3032,215 @@
         "weekday_label": "월요일",
         "is_holiday": true,
         "holiday_name": "대체공휴일(개천절)",
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "대체 공휴일"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "대체 공휴일"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": []
+          },
+          {
+            "group_name": "비빔코너",
+            "items": []
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-10-06": {
         "date": "2026-10-06",
         "weekday_label": "화요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "백미밥/잡곡밥",
+              "배추된장국",
+              "분모자찜닭",
+              "파프리카어묵볶음",
+              "양념고추지",
+              "배추김치"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "스팸김치볶음밥&후라이",
+              "배추된장국",
+              "미트볼스파게티",
+              "양념고추지",
+              "단무지"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": [
+              "야채샐러드"
+            ]
+          },
+          {
+            "group_name": "비빔코너",
+            "items": []
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-10-07": {
         "date": "2026-10-07",
         "weekday_label": "수요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "백미밥/잡곡밥",
+              "도토리묵냉국",
+              "해물콩나물찜",
+              "감자볶음",
+              "치커리유자무침",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "공보리비빔밥",
+              "도토리묵냉국",
+              "비엔나두반장볶음",
+              "옥수수맛탕",
+              "배추김치"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": [
+              "생강차"
+            ]
+          },
+          {
+            "group_name": "비빔코너",
+            "items": [
+              "고추장&참기름&기본양념"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-10-08": {
         "date": "2026-10-08",
         "weekday_label": "목요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "백미밥/잡곡밥",
+              "어묵국",
+              "제육볶음",
+              "양배추찜&쌈장",
+              "무말랭이무침",
+              "열무김치"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "영양닭곰탕&소면",
+              "백미밥",
+              "갈비만두찜",
+              "콩자반",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": [
+              "누룽지숭늉"
+            ]
+          },
+          {
+            "group_name": "비빔코너",
+            "items": []
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-10-09": {
         "date": "2026-10-09",
         "weekday_label": "금요일",
         "is_holiday": true,
         "holiday_name": "한글날",
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "한글날 (휴무)"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "한글날 (휴무)"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": []
+          },
+          {
+            "group_name": "비빔코너",
+            "items": []
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       }
     }
   },
@@ -7213,7 +7383,7 @@
   },
   "nano_gaeram": {
     "label": "한국나노기술원 구내식당",
-    "post_url": "https://pf.kakao.com/_PxhQqX/114705456",
+    "post_url": "https://pf.kakao.com/_PxhQqX/114795852",
     "days": {
       "2026-07-06": {
         "date": "2026-07-06",
@@ -10229,45 +10399,188 @@
         "weekday_label": "월요일",
         "is_holiday": true,
         "holiday_name": "대체공휴일(개천절)",
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "items": [
+              "대체공휴일 휴무안내"
+            ]
+          },
+          {
+            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "items": [
+              "대체공휴일 휴무안내"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "PLUS 하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "items": [
+              "휴무"
+            ]
+          }
+        ]
       },
       "2026-10-06": {
         "date": "2026-10-06",
         "weekday_label": "화요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "items": [
+              "참치김치찌개",
+              "쌀밥/잡곡밥",
+              "두부조림",
+              "버섯볶음",
+              "삼색겨자무침",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "items": [
+              "돈까스카레덮밥",
+              "쌀밥",
+              "김치국",
+              "수제비뇨끼",
+              "멕시칸샐러드",
+              "깍두기"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "PLUS 하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "items": [
+              "그린샐러드/후식차",
+              "뚝배기등갈비김치찌개",
+              "쌀밥",
+              "동그랑땡*케찹",
+              "콩나물무침",
+              "깍두기",
+              "미니꿀떡"
+            ]
+          }
+        ]
       },
       "2026-10-07": {
         "date": "2026-10-07",
         "weekday_label": "수요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "items": [
+              "가자미카레튀김",
+              "쌀밥/잡곡밥",
+              "미역국",
+              "어묵볶음",
+              "마늘종고추장무침",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "items": [
+              "뚝배기치즈쫄면순두부",
+              "쌀밥/잡곡밥",
+              "미니돈가스*케찹",
+              "어묵볶음",
+              "브로콜리흑임자무침",
+              "포기김치"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "PLUS 하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "items": [
+              "그린샐러드/후식차",
+              "계란볶음밥",
+              "*자장소스",
+              "야채짬뽕국물",
+              "군만두",
+              "단무지무침",
+              "포기김치"
+            ]
+          }
+        ]
       },
       "2026-10-08": {
         "date": "2026-10-08",
         "weekday_label": "목요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "items": [
+              "사골떡만두국(탕)",
+              "추가밥",
+              "고추마요미트볼",
+              "우엉채튀김무침",
+              "부추겉절이",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "items": [
+              "돼지고기숙주볶음",
+              "쌀밥/잡곡밥",
+              "시래기국",
+              "버섯곤약조림",
+              "부추겉절이",
+              "포기김치"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "PLUS 하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "items": [
+              "그린샐러드/후식차",
+              "직화돌솥비빔밥",
+              "계란파국",
+              "너비아니새송이구이",
+              "파래볶음",
+              "포기김치",
+              "-"
+            ]
+          }
+        ]
       },
       "2026-10-09": {
         "date": "2026-10-09",
         "weekday_label": "금요일",
         "is_holiday": true,
         "holiday_name": "한글날",
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "items": [
+              "공휴일 휴무입니다"
+            ]
+          },
+          {
+            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "items": [
+              "공휴일 휴무입니다"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "PLUS 하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "items": [
+              "휴무"
+            ]
+          }
+        ]
       }
     }
   }
