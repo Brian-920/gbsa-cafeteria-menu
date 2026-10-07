@@ -14,7 +14,9 @@ scripts/ocr_cache.py       → OCR 결과를 이미지 해시 기준으로 캐�
 scripts/merge_archive.py   → 이번 주 결과를 누적 아카이브(data/archive.json)에 병합
                               + 채널별 예외 규칙 적용 + 공휴일 판정
 scripts/generate_site.py   → data/archive.json을 읽어 최종 웹페이지 생성 (PWA 포함)
-scripts/rules.py           → 채널별 예외 규칙 (중식/석식 분류, 항목 제외, 표시 이름)
+scripts/rules.py           → 채널별 예외 규칙 (중식/석식 분류, 항목 제외, 표시 이름,
+                              그룹명 정리/병합 그룹 분리)
+scripts/normalize_archive.py → (수동) 과거 아카이브에 현재 정리 규칙 소급 적용
 scripts/holiday_utils.py   → 공공데이터포털 API로 대한민국 공휴일 조회
 scripts/check_week_complete.py → 이번 주 데이터가 다 찼는지 판정 (재시도 여부 결정)
 ```
@@ -128,6 +130,29 @@ Actions 탭 → `구내식당 식단표 자동 업데이트` → Run workflow
 3. 그래도 모르겠으면 그 실행의 아티팩트(`menu-run-output` /
    `menu-retry-output`)를 받아 `output/images/`의 원본 이미지와
    `output/data/menu_final.json`을 직접 확인한다.
+
+## 그룹명 정리 규칙 (`scripts/rules.py`)
+
+OCR은 같은 표를 매주 조금씩 다르게 읽습니다. 나노기술원 한 채널에서만
+그룹명이 20종류 넘게 생겼습니다(`A코너`, `점심 A코너`,
+`정성이 가득한 점심 (11:30~13:10) A코너` ...). 그래서 **화면에 쓸 그룹명은
+OCR 결과를 그대로 쓰지 않고 규칙으로 확정**합니다.
+
+| 규칙 | 역할 |
+| --- | --- |
+| `CHANNEL_GROUP_RENAME` | 그룹명을 짧은 표준 이름으로 통일 (나노기술원: `A코너`/`B코너`/`PLUS`/`석식`) |
+| `CHANNEL_GROUP_SPLIT` | OCR이 세로로 맞붙은 두 행을 한 덩어리로 읽었을 때 분리 (나노기술원: `PLUS` + `석식`) |
+| `CHANNEL_DINNER_GROUP_OVERRIDE` | 그룹명만으로 석식 판별이 안 되는 경우 지정 |
+| `CHANNEL_GROUP_ITEM_EXCLUDE` | 특정 그룹에 매번 잘못 섞여 들어오는 항목 제외 |
+| `PLACEHOLDER_ITEM` | 표의 빈 칸이 `-`, `.` 등으로 읽힌 찌꺼기 항목 제거 |
+
+규칙은 **새로 병합할 때만** 적용되므로, 규칙을 고친 뒤 과거 기록까지 맞추려면
+아래를 실행합니다(메뉴 내용은 건드리지 않고 그룹명·중식/석식 소속만 정리):
+
+```bash
+python scripts/normalize_archive.py --dry-run   # 무엇이 바뀌는지만 확인
+python scripts/normalize_archive.py             # 실제 적용
+```
 
 ## 알려진 리스크 / 참고사항
 

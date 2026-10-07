@@ -55,11 +55,14 @@ def build_day_entry(day: dict, channel_name: str, run_year: int, holidays: dict)
 
     lunch_groups, dinner_groups = [], []
     for g in day.get("menu_groups", []):
-        group_name = g.get("group_name", "")
-        bucket = rules.classify_meal_type(channel_name, group_name)
-        items = rules.filter_excluded_items(channel_name, group_name, g.get("items", []))
-        target = dinner_groups if bucket == "dinner" else lunch_groups
-        target.append({"group_name": group_name, "items": items})
+        # OCR 그룹 하나가 실제로는 두 행(예: PLUS + 석식)일 수 있으므로 먼저 정리한다.
+        for group_name, raw_items in rules.normalize_groups(
+            channel_name, g.get("group_name", ""), g.get("items", [])
+        ):
+            bucket = rules.classify_meal_type(channel_name, group_name)
+            items = rules.filter_excluded_items(channel_name, group_name, raw_items)
+            target = dinner_groups if bucket == "dinner" else lunch_groups
+            target.append({"group_name": group_name, "items": items})
 
     holiday_name = holidays.get(date_iso)
 

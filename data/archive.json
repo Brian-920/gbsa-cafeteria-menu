@@ -1,7 +1,7 @@
 {
   "gbsa": {
     "label": "경기도경제과학진흥원 구내식당",
-    "post_url": "https://pf.kakao.com/_MgUGn/114706943",
+    "post_url": "https://pf.kakao.com/_MgUGn/114803866",
     "days": {
       "2026-07-06": {
         "date": "2026-07-06",
@@ -3032,45 +3032,215 @@
         "weekday_label": "월요일",
         "is_holiday": true,
         "holiday_name": "대체공휴일(개천절)",
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "대체 공휴일"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "대체 공휴일"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": []
+          },
+          {
+            "group_name": "비빔코너",
+            "items": []
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-10-06": {
         "date": "2026-10-06",
         "weekday_label": "화요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "백미밥/잡곡밥",
+              "배추된장국",
+              "분모자찜닭",
+              "파프리카어묵볶음",
+              "양념고추지",
+              "배추김치"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "스팸김치볶음밥&후라이",
+              "배추된장국",
+              "미트볼스파게티",
+              "양념고추지",
+              "단무지"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": [
+              "야채샐러드"
+            ]
+          },
+          {
+            "group_name": "비빔코너",
+            "items": []
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-10-07": {
         "date": "2026-10-07",
         "weekday_label": "수요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "백미밥/잡곡밥",
+              "도토리묵냉국",
+              "해물콩나물찜",
+              "감자볶음",
+              "치커리유자무침",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "공보리비빔밥",
+              "도토리묵냉국",
+              "비엔나두반장볶음",
+              "옥수수맛탕",
+              "배추김치"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": [
+              "생강차"
+            ]
+          },
+          {
+            "group_name": "비빔코너",
+            "items": [
+              "고추장&참기름&기본양념"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-10-08": {
         "date": "2026-10-08",
         "weekday_label": "목요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "백미밥/잡곡밥",
+              "어묵국",
+              "제육볶음",
+              "양배추찜&쌈장",
+              "무말랭이무침",
+              "열무김치"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "영양닭곰탕&소면",
+              "백미밥",
+              "갈비만두찜",
+              "콩자반",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": [
+              "누룽지숭늉"
+            ]
+          },
+          {
+            "group_name": "비빔코너",
+            "items": []
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       },
       "2026-10-09": {
         "date": "2026-10-09",
         "weekday_label": "금요일",
         "is_holiday": true,
         "holiday_name": "한글날",
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "중식 일반식",
+            "items": [
+              "한글날 (휴무)"
+            ]
+          },
+          {
+            "group_name": "중식 일품식",
+            "items": [
+              "한글날 (휴무)"
+            ]
+          },
+          {
+            "group_name": "플러스코너",
+            "items": []
+          },
+          {
+            "group_name": "비빔코너",
+            "items": []
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "석식 미운영"
+            ]
+          }
+        ]
       }
     }
   },
@@ -7213,7 +7383,7 @@
   },
   "nano_gaeram": {
     "label": "한국나노기술원 구내식당",
-    "post_url": "https://pf.kakao.com/_PxhQqX/114705456",
+    "post_url": "https://pf.kakao.com/_PxhQqX/114795852",
     "days": {
       "2026-07-06": {
         "date": "2026-07-06",
@@ -7252,7 +7422,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "소고기장터국밥(탕)",
               "쌀밥",
@@ -7301,7 +7471,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "냉모밀국수",
               "김가루밥",
@@ -7350,7 +7520,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "햄김치볶음밥",
               "어묵국",
@@ -7399,7 +7569,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "잔치국수",
               "추가밥",
@@ -7448,7 +7618,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -7462,7 +7632,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "가자미카레튀김",
               "쌀밥/잡곡밥",
@@ -7473,7 +7643,7 @@
             ]
           },
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "불닭갈비*넓적당면사리",
               "쌀밥/잡곡밥",
@@ -7492,7 +7662,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "육개장(탕)",
               "쌀밥",
@@ -7511,7 +7681,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "꽃게된장찌개",
               "쌀밥/잡곡밥",
@@ -7522,7 +7692,7 @@
             ]
           },
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "노각비빔밥",
               "건새우무국",
@@ -7541,7 +7711,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "수제참깨수제비",
               "야채볶음밥",
@@ -7560,7 +7730,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "고깃집깍두기볶음밥",
               "냉이배추국",
@@ -7571,7 +7741,7 @@
             ]
           },
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "초계국수",
               "후리카케밥",
@@ -7590,14 +7760,13 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "중화덮밥",
               "건새우무국",
               "군만두*초간장",
               "이연복st배추찜",
-              "포기김치",
-              "-"
+              "포기김치"
             ]
           }
         ]
@@ -7609,7 +7778,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "부대찌개",
               "쌀밥/잡곡밥",
@@ -7620,7 +7789,7 @@
             ]
           },
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "미나리제육볶음",
               "쌀밥/잡곡밥",
@@ -7639,7 +7808,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "나시고랭",
               "미니쌀국수",
@@ -7658,7 +7827,7 @@
         "holiday_name": "제헌절",
         "lunch_groups": [
           {
-            "group_name": "점심",
+            "group_name": "중식",
             "items": [
               "제헌절로 인해 식단 미운영"
             ]
@@ -7666,7 +7835,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "석식 미운영"
             ]
@@ -7680,7 +7849,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 A코너",
+            "group_name": "A코너",
             "items": [
               "육개장*당면사리(탕)",
               "쌀밥/잡곡밥",
@@ -7691,7 +7860,7 @@
             ]
           },
           {
-            "group_name": "점심 B코너",
+            "group_name": "B코너",
             "items": [
               "새우튀김우동",
               "햄야채볶음밥",
@@ -7710,7 +7879,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "마파두부",
               "쌀밥",
@@ -7729,7 +7898,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 A코너",
+            "group_name": "A코너",
             "items": [
               "비지찌개",
               "쌀밥/잡곡밥",
@@ -7740,7 +7909,7 @@
             ]
           },
           {
-            "group_name": "점심 B코너",
+            "group_name": "B코너",
             "items": [
               "청양풍돈불고기",
               "쌀밥/잡곡밥",
@@ -7759,7 +7928,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "산나물비빔밥*계란후라이",
               "팽이된장국",
@@ -7778,7 +7947,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 A코너",
+            "group_name": "A코너",
             "items": [
               "고기콩나물밥*양념장",
               "미역국",
@@ -7789,7 +7958,7 @@
             ]
           },
           {
-            "group_name": "점심 B코너",
+            "group_name": "B코너",
             "items": [
               "순두부열라면",
               "김가루밥",
@@ -7808,7 +7977,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "차돌된장찌개",
               "쌀밥",
@@ -7827,7 +7996,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 A코너",
+            "group_name": "A코너",
             "items": [
               "오징어순대볶음",
               "쌀밥/잡곡밥",
@@ -7838,7 +8007,7 @@
             ]
           },
           {
-            "group_name": "점심 B코너",
+            "group_name": "B코너",
             "items": [
               "오므아비꼬카레라이스",
               "우동국물",
@@ -7857,7 +8026,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "나주곰탕*소면사리",
               "쌀밥",
@@ -7876,7 +8045,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 A코너",
+            "group_name": "A코너",
             "items": [
               "베테랑칼국수",
               "추가밥",
@@ -7887,7 +8056,7 @@
             ]
           },
           {
-            "group_name": "점심 B코너",
+            "group_name": "B코너",
             "items": [
               "순살불닭덮밥",
               "맑은콩나물국",
@@ -7906,7 +8075,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -7950,7 +8119,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁",
+            "group_name": "석식",
             "items": [
               "얼큰순두부찌개",
               "쌀밥",
@@ -7999,7 +8168,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁",
+            "group_name": "석식",
             "items": [
               "삼계닭죽",
               "추가밥",
@@ -8048,7 +8217,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁",
+            "group_name": "석식",
             "items": [
               "뼈없는감자탕(탕)",
               "쌀밥",
@@ -8097,7 +8266,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁",
+            "group_name": "석식",
             "items": [
               "햄김치볶음밥",
               "어묵국",
@@ -8145,7 +8314,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -8159,7 +8328,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 A코너",
+            "group_name": "A코너",
             "items": [
               "돼지고추장찌개",
               "쌀밥/잡곡밥",
@@ -8170,7 +8339,7 @@
             ]
           },
           {
-            "group_name": "점심 B코너",
+            "group_name": "B코너",
             "items": [
               "중화덮밥",
               "근대국",
@@ -8189,14 +8358,13 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "돈코츠라멘",
               "추가밥",
               "감자고로케*케찹",
               "오복지무침",
-              "포기김치",
-              "-"
+              "포기김치"
             ]
           }
         ]
@@ -8208,7 +8376,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 A코너",
+            "group_name": "A코너",
             "items": [
               "참치김치찌개",
               "쌀밥/잡곡밥",
@@ -8219,7 +8387,7 @@
             ]
           },
           {
-            "group_name": "점심 B코너",
+            "group_name": "B코너",
             "items": [
               "콩국수",
               "추가밥",
@@ -8238,7 +8406,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "노각비빔밥",
               "시래기국",
@@ -8257,7 +8425,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 A코너",
+            "group_name": "A코너",
             "items": [
               "청국장",
               "쌀밥/잡곡밥",
@@ -8268,7 +8436,7 @@
             ]
           },
           {
-            "group_name": "점심 B코너",
+            "group_name": "B코너",
             "items": [
               "부대찌개(탕)",
               "쌀밥/잡곡밥",
@@ -8287,7 +8455,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "소고기장터국밥(탕)",
               "쌀밥",
@@ -8306,7 +8474,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 A코너",
+            "group_name": "A코너",
             "items": [
               "황태설렁탕(탕)",
               "쌀밥/잡곡밥",
@@ -8317,7 +8485,7 @@
             ]
           },
           {
-            "group_name": "점심 B코너",
+            "group_name": "B코너",
             "items": [
               "고추장불고기",
               "쌀밥/잡곡밥",
@@ -8336,7 +8504,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "카레라이스",
               "건새우무국",
@@ -8355,7 +8523,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 A코너",
+            "group_name": "A코너",
             "items": [
               "취나물버섯밥*양념장",
               "미역국",
@@ -8366,7 +8534,7 @@
             ]
           },
           {
-            "group_name": "점심 B코너",
+            "group_name": "B코너",
             "items": [
               "고구마닭갈비",
               "쌀밥/잡곡밥",
@@ -8385,7 +8553,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -8429,7 +8597,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "옛날도시락st비빔밥",
               "수제비국",
@@ -8478,7 +8646,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "이북식닭곰탕(탕)",
               "쌀밥",
@@ -8527,14 +8695,13 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "장조림버터비빔밥",
               "시금치고추장국",
               "김말이떡강정",
               "단무지무침",
-              "포기김치",
-              "-"
+              "포기김치"
             ]
           }
         ]
@@ -8576,7 +8743,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "열무냉(열무쫄냉면)",
               "추가밥",
@@ -8625,7 +8792,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -8639,7 +8806,7 @@
         "holiday_name": "대체공휴일(광복절)",
         "lunch_groups": [
           {
-            "group_name": "점심 (11:30~13:10)",
+            "group_name": "중식",
             "items": [
               "대체휴일"
             ]
@@ -8653,7 +8820,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": []
           }
         ]
@@ -8695,7 +8862,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "돼지국밥 (탕)",
               "쌀밥",
@@ -8744,7 +8911,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "베트남쌀국수",
               "야채볶음밥",
@@ -8793,7 +8960,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "열무보리비빔밥",
               "유부팽이미소장국",
@@ -8842,7 +9009,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -8856,7 +9023,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "A코너 (정성이 가득한 점심 11:30~13:10)",
+            "group_name": "A코너",
             "items": [
               "비벼주는나물밥",
               "김치국",
@@ -8867,7 +9034,7 @@
             ]
           },
           {
-            "group_name": "B코너 (정성이 가득한 점심 11:30~13:10)",
+            "group_name": "B코너",
             "items": [
               "순살감자탕(탕)",
               "쌀밥/잡곡밥",
@@ -8886,7 +9053,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (하루를 마무리 하는 저녁 17:30~18:30)",
+            "group_name": "석식",
             "items": [
               "훈제오리볶음&쌈무",
               "쌈밥",
@@ -8905,7 +9072,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "A코너 (정성이 가득한 점심 11:30~13:10)",
+            "group_name": "A코너",
             "items": [
               "짬뽕칼국수",
               "추가밥",
@@ -8916,7 +9083,7 @@
             ]
           },
           {
-            "group_name": "B코너 (정성이 가득한 점심 11:30~13:10)",
+            "group_name": "B코너",
             "items": [
               "돈가스카레덮밥",
               "쌀밥",
@@ -8935,7 +9102,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (하루를 마무리 하는 저녁 17:30~18:30)",
+            "group_name": "석식",
             "items": [
               "김치볶음밥&계란후라이",
               "미니꼬치어묵우동",
@@ -8953,7 +9120,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "A코너 (정성이 가득한 점심 11:30~13:10)",
+            "group_name": "A코너",
             "items": [
               "코다리조림",
               "쌀밥/잡곡밥",
@@ -8964,7 +9131,7 @@
             ]
           },
           {
-            "group_name": "B코너 (정성이 가득한 점심 11:30~13:10)",
+            "group_name": "B코너",
             "items": [
               "순두부열라면",
               "땡초참치꼬마김밥",
@@ -8983,7 +9150,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (하루를 마무리 하는 저녁 17:30~18:30)",
+            "group_name": "석식",
             "items": [
               "참치김치찌개",
               "쌀밥",
@@ -9002,7 +9169,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "A코너 (정성이 가득한 점심 11:30~13:10)",
+            "group_name": "A코너",
             "items": [
               "스페인오징어빠에야",
               "가쓰오국물",
@@ -9013,7 +9180,7 @@
             ]
           },
           {
-            "group_name": "B코너 (정성이 가득한 점심 11:30~13:10)",
+            "group_name": "B코너",
             "items": [
               "순살닭볶음탕",
               "쌀밥/잡곡밥",
@@ -9032,7 +9199,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (하루를 마무리 하는 저녁 17:30~18:30)",
+            "group_name": "석식",
             "items": [
               "콩비지찌개",
               "쌀밥",
@@ -9051,7 +9218,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "A코너 (정성이 가득한 점심 11:30~13:10)",
+            "group_name": "A코너",
             "items": [
               "차돌육개장(탕)",
               "쌀밥/잡곡밥",
@@ -9062,7 +9229,7 @@
             ]
           },
           {
-            "group_name": "B코너 (정성이 가득한 점심 11:30~13:10)",
+            "group_name": "B코너",
             "items": [
               "숯불향돼지고기",
               "쌀밥/잡곡밥",
@@ -9081,7 +9248,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁 (하루를 마무리 하는 저녁 17:30~18:30)",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -9125,7 +9292,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "열무보리비빔밥",
               "*우렁강된장",
@@ -9174,7 +9341,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "얼큰고사리닭개장(탕)",
               "쌀밥",
@@ -9223,7 +9390,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "마파두부",
               "쌀밥",
@@ -9272,7 +9439,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "김치말이국수",
               "추가밥",
@@ -9321,7 +9488,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -9365,7 +9532,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "인절미콩국수",
               "추가밥",
@@ -9414,7 +9581,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "스팸김치찌개",
               "쌀밥",
@@ -9463,7 +9630,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "대파돈개장(탕)",
               "쌀밥",
@@ -9512,7 +9679,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "파기름계란볶음밥",
               "*짜장소스",
@@ -9561,7 +9728,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "저녁",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -9575,7 +9742,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "순두부짬뽕국",
               "쌀밥/잡곡밥",
@@ -9586,7 +9753,7 @@
             ]
           },
           {
-            "group_name": "점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "지코바치밥",
               "유부가쓰오국물",
@@ -9605,7 +9772,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30~18:30)",
+            "group_name": "석식",
             "items": [
               "고깃집깍두기볶음밥",
               "*계란후라이",
@@ -9624,7 +9791,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "코다리강정",
               "쌀밥/잡곡밥",
@@ -9635,7 +9802,7 @@
             ]
           },
           {
-            "group_name": "점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "차돌된장찌개(뚝)",
               "쌀밥/잡곡밥",
@@ -9654,7 +9821,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30~18:30)",
+            "group_name": "석식",
             "items": [
               "베테랑칼국수",
               "추가밥",
@@ -9672,7 +9839,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "콩나물밥*양념장",
               "미역국",
@@ -9683,7 +9850,7 @@
             ]
           },
           {
-            "group_name": "점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "왕돈까스",
               "미니밥",
@@ -9702,7 +9869,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30~18:30)",
+            "group_name": "석식",
             "items": [
               "소고기장터국밥(탕)",
               "쌀밥",
@@ -9721,7 +9888,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "호박짜글이찌개",
               "쌀밥/잡곡밥",
@@ -9732,7 +9899,7 @@
             ]
           },
           {
-            "group_name": "점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "고추장불고기",
               "쌀밥/잡곡밥",
@@ -9751,7 +9918,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30~18:30)",
+            "group_name": "석식",
             "items": [
               "고추참치볶음밥",
               "부들어묵국",
@@ -9770,7 +9937,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "마파두부덮밥",
               "쌀밥/잡곡밥",
@@ -9781,7 +9948,7 @@
             ]
           },
           {
-            "group_name": "점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "비벼주는나물밥",
               "근대국",
@@ -9800,7 +9967,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30~18:30)",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -9814,7 +9981,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "단호박카레라이스",
               "쌀밥",
@@ -9825,7 +9992,7 @@
             ]
           },
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "뚝배기부대찌개",
               "쌀밥/잡곡밥",
@@ -9844,7 +10011,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "헛제사밥*양념간장",
               "소고기미역국",
@@ -9863,7 +10030,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "돼지김치찌개",
               "쌀밥/잡곡밥",
@@ -9874,7 +10041,7 @@
             ]
           },
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "가츠동",
               "쌀밥",
@@ -9893,7 +10060,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "잔치국수",
               "미니열무비빔밥",
@@ -9912,7 +10079,7 @@
         "holiday_name": null,
         "lunch_groups": [
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) A코너",
+            "group_name": "A코너",
             "items": [
               "뿌리채소영양밥*양념장",
               "시금치고추장국",
@@ -9923,7 +10090,7 @@
             ]
           },
           {
-            "group_name": "정성이 가득한 점심 (11:30~13:10) B코너",
+            "group_name": "B코너",
             "items": [
               "버섯돈불고기",
               "시금치고추장국",
@@ -9942,7 +10109,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -10022,7 +10189,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "오색나물비빔밥",
               "감자양파국",
@@ -10070,7 +10237,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "육개장칼국수(탕)",
               "쌀밥",
@@ -10119,7 +10286,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "뚝배기동태찌개",
               "쌀밥",
@@ -10168,7 +10335,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "삼계죽",
               "추가밥",
@@ -10217,7 +10384,7 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "하루를 마무리 하는 저녁 (17:30 ~ 18:30)",
+            "group_name": "석식",
             "items": [
               "석식미운영"
             ]
@@ -10229,45 +10396,202 @@
         "weekday_label": "월요일",
         "is_holiday": true,
         "holiday_name": "대체공휴일(개천절)",
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "대체공휴일 휴무안내"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "대체공휴일 휴무안내"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "휴무"
+            ]
+          }
+        ]
       },
       "2026-10-06": {
         "date": "2026-10-06",
         "weekday_label": "화요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "참치김치찌개",
+              "쌀밥/잡곡밥",
+              "두부조림",
+              "버섯볶음",
+              "삼색겨자무침",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "돈까스카레덮밥",
+              "쌀밥",
+              "김치국",
+              "수제비뇨끼",
+              "멕시칸샐러드",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "뚝배기등갈비김치찌개",
+              "쌀밥",
+              "동그랑땡*케찹",
+              "콩나물무침",
+              "깍두기",
+              "미니꿀떡"
+            ]
+          }
+        ]
       },
       "2026-10-07": {
         "date": "2026-10-07",
         "weekday_label": "수요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "가자미카레튀김",
+              "쌀밥/잡곡밥",
+              "미역국",
+              "어묵볶음",
+              "마늘종고추장무침",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "뚝배기치즈쫄면순두부",
+              "쌀밥/잡곡밥",
+              "미니돈가스*케찹",
+              "어묵볶음",
+              "브로콜리흑임자무침",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "계란볶음밥",
+              "*자장소스",
+              "야채짬뽕국물",
+              "군만두",
+              "단무지무침",
+              "포기김치"
+            ]
+          }
+        ]
       },
       "2026-10-08": {
         "date": "2026-10-08",
         "weekday_label": "목요일",
         "is_holiday": false,
         "holiday_name": null,
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "사골떡만두국(탕)",
+              "추가밥",
+              "고추마요미트볼",
+              "우엉채튀김무침",
+              "부추겉절이",
+              "깍두기"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "돼지고기숙주볶음",
+              "쌀밥/잡곡밥",
+              "시래기국",
+              "버섯곤약조림",
+              "부추겉절이",
+              "포기김치"
+            ]
+          },
+          {
+            "group_name": "PLUS",
+            "items": [
+              "그린샐러드/후식차"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "직화돌솥비빔밥",
+              "계란파국",
+              "너비아니새송이구이",
+              "파래볶음",
+              "포기김치"
+            ]
+          }
+        ]
       },
       "2026-10-09": {
         "date": "2026-10-09",
         "weekday_label": "금요일",
         "is_holiday": true,
         "holiday_name": "한글날",
-        "lunch_groups": [],
-        "dinner_groups": [],
-        "no_data": true
+        "lunch_groups": [
+          {
+            "group_name": "A코너",
+            "items": [
+              "공휴일 휴무입니다"
+            ]
+          },
+          {
+            "group_name": "B코너",
+            "items": [
+              "공휴일 휴무입니다"
+            ]
+          }
+        ],
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "휴무"
+            ]
+          }
+        ]
       }
     }
   }
