@@ -127,11 +127,18 @@ def main():
             archive[name]["label"] = label
             archive[name]["post_url"] = entry.get("post_url") or archive[name].get("post_url")
 
+        if entry.get("status") == "skipped_already_complete":
+            # ocr_menu.py가 "이번 주 데이터가 이미 있다"고 판단해 건너뛴 채널.
+            # 기존 아카이브를 그대로 두면 되므로 아무것도 하지 않는다.
+            print(f"[merge_archive] {name}: 이번 주 데이터가 이미 있어 그대로 둡니다.")
+            continue
+
         if entry.get("status") != "success":
             filled = fill_missing_week_with_placeholder(archive[name], holidays)
             print(
                 f"[merge_archive] {name}: 이번 실행에서 식단표를 찾지 못했습니다"
-                f"({entry.get('status')}). 이번 주 {filled}일치를 '정보 없음'으로 채웠습니다."
+                f"({entry.get('status')}, 사유: {entry.get('reason')}). "
+                f"이번 주 {filled}일치를 '정보 없음'으로 채웠습니다."
             )
             continue
 
