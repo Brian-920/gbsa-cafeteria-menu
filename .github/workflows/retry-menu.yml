@@ -1,18 +1,23 @@
-name: "구내식당 식단표 재시도(2시간마다)"
+name: "구내식당 식단표 재시도(3시간마다)"
 
 # 식당이 게시글을 늦게 올릴 때를 대비한 안전망 워크플로우.
 #
-# 평일(월~금) 09~23시(KST) 사이 2시간마다 트리거되지만, 실제로
+# 평일(월~금) 09~21시(KST) 사이 3시간마다 트리거되지만, 실제로
 # 스크래핑/OCR/배포까지 다시 하는 건 "이번 주 데이터가 아직 다 안 채워졌을
 # 때"뿐이다. check_week_complete.py가 이미 다 채워졌다고 판단하면
 # 뒤이은 단계는 전부 건너뛰고 몇 초 만에 끝난다 — 즉, 정상적으로 다 채워진
 # 주라면 사실상 다음 "진짜" 실행은 다음 주 월요일 07:00(update-menu.yml)이다.
 #
 # 09시 = KST, update-menu.yml(매주 월요일 07:00 KST)의 다음 타이밍부터 시작.
+#
+# 2026-10-07: 주기를 2시간 -> 3시간으로 완화했다. Gemini 무료 할당량이 모델당
+# 1일 20회뿐이라, 하루 8번씩 돌면서 매번 OCR을 시도하면 할당량이 오전에 바닥나
+# 이후 모든 실행이 429로 실패했다. (ocr_menu.py의 채널 건너뛰기 + OCR 캐시와
+# 함께 적용) 09/12/15/18/21시(KST) 5회면 "식당이 늦게 올리는" 경우를 잡기에 충분하다.
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "0 0,2,4,6,8,10,12,14 * * 1-5"
+    - cron: "0 0,3,6,9,12 * * 1-5"
 
 permissions:
   contents: write
@@ -47,6 +52,9 @@ jobs:
         if: steps.check.outputs.complete == 'false'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # 아래 두 개는 선택 사항 (Settings -> Variables). 비워두면 기본값 사용.
+          GEMINI_MODELS: ${{ vars.GEMINI_MODELS }}
+          GEMINI_MAX_CALLS: ${{ vars.GEMINI_MAX_CALLS }}
         run: python scripts/ocr_menu.py
 
       - name: 3) 아카이브 병합 (공휴일 판정 포함)
@@ -74,7 +82,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/archive.json data/holidays_cache.json 2>/dev/null || true
+          git add data/archive.json data/holidays_cache.json data/ocr_cache.json 2>/dev/null || true
           git diff --cached --quiet || git commit -m "chore: 식단 아카이브 재시도 갱신 [skip ci]"
           git push
 

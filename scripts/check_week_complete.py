@@ -47,6 +47,22 @@ def channel_has_real_data(archive: dict, channel: str, date_iso: str) -> bool:
     return bool(day.get("lunch_groups")) or bool(day.get("dinner_groups"))
 
 
+def channels_missing_data(archive: dict, now: datetime = None) -> set:
+    """이번 주(월~오늘) 중 아직 실제 식단 데이터가 없는 채널 이름 집합을 돌려준다.
+
+    ocr_menu.py가 "이미 다 채워진 채널은 OCR을 건너뛰기" 위해 그대로 재사용한다.
+    (Gemini 무료 할당량이 모델당 1일 20회뿐이라, 이미 확보한 채널까지 매번 다시
+    OCR 하면 하루치 할당량이 금방 바닥난다.)
+    """
+    missing = set()
+    for d in current_week_weekdays_up_to_today(now):
+        date_iso = d.isoformat()
+        for channel in CHANNELS:
+            if not channel_has_real_data(archive, channel, date_iso):
+                missing.add(channel)
+    return missing
+
+
 def write_output(complete: bool):
     value = "true" if complete else "false"
     gh_output = os.environ.get("GITHUB_OUTPUT")
