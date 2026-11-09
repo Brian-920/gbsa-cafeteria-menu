@@ -3,6 +3,7 @@
 scrape_menu.py가 만든 raw OCR 결과를 merge_archive.py가 정규화할 때 사용한다.
 """
 
+import math
 import re
 from datetime import datetime, timedelta, timezone
 
@@ -199,3 +200,91 @@ def filter_excluded_items(channel_name, group_name, items):
 
 def display_label(channel_name, fallback_label):
     return DISPLAY_LABEL_OVERRIDE.get(channel_name, fallback_label)
+
+
+# ---------------------------------------------------------------------------
+# 누락 행 점검 (OCR이 표의 한 행을 통째로 빠뜨리는 경우)
+# ---------------------------------------------------------------------------
+# 2026-11-09 경기도경제과학진흥원 월요일 칸에서 '중식 일반식' 행이 통째로 빠진 채
+# 읽혔다(나머지 4일은 정상). 같은 주 표에서 대부분의 요일에 있는 중식 그룹이
+# 특정 요일에만 없으면 OCR 누락으로 의심한다.
+#
+# 석식은 요일별로 운영하지 않는 날(예: 금요일 석식 없음)이 실제로 있어
+# 오탐이 많으므로 점검 대상에서 뺀다. (2026-10~11월 아카이브로 검증: 중식만
+# 점검하면 의심 판정은 이번 사례 1건뿐이었다.)
+MISSING_GROUP_MIN_DAYS = 3
+MISSING_GROUP_RATIO = 0.6
+
+# 이 표현이 항목에 있으면 휴무/미운영일이므로 누락 점검에서 제외한다.
+NON_SERVICE_ITEM = re.compile(r"휴무|휴일|공휴일|대체|미운영|운영\s*안")
+
+
+def is_non_service_day(lunch_groups_items) -> bool:
+    """중식 그룹들의 항목 문구가 휴무/미운영을 뜻하면 True."""
+    for items in lunch_groups_items:
+        if any(NON_SERVICE_ITEM.search(it or "") for it in items):
+            return True
+    return False
+
+
+def find_days_missing_groups(day_group_names: dict) -> dict:
+    """{날짜키: {중식 그룹명 집합}} -> {날짜키: [누락 의심 그룹명]}.
+
+    같은 주 요일의 60% 이상(최소 3일)에 있는 그룹이 어떤 요일에 없으면 그 요일의
+    누락으로 본다. 그룹명이 하나도 없는 요일(휴무 등)은 호출 측에서 미리 뺀다.
+    """
+    n = len(day_group_names)
+    if n < MISSING_GROUP_MIN_DAYS:
+        return {}
+
+    counts = {}
+    for names in day_group_names.values():
+        for name in names:
+            counts[name] = counts.get(name, 0) + 1
+
+    threshold = max(MISSING_GROUP_MIN_DAYS, math.ceil(MISSING_GROUP_RATIO * n))
+    expected = {name for name, c in counts.items() if c >= threshold}
+
+    result = {}
+    for key, names in day_group_names.items():
+        missing = sorted(expected - set(names))
+        if missing:
+            result[key] = missing
+    return result
+
+
+def find_missing_groups_in_menu(menu_json: dict, channel_name: str) -> dict:
+    """OCR 결과(menu_json)에서 누락이 의심되는 (요일 라벨 -> 그룹명 목록)을 찾는다."""
+    day_group_names = {}
+    for idx, day in enumerate(menu_json.get("days") or []):
+        names, items_per_group = set(), []
+        for g in day.get("menu_groups", []):
+            for name, items in normalize_groups(
+                channel_name, g.get("group_name", ""), g.get("items", [])
+            ):
+                if classify_meal_type(channel_name, name) == "lunch":
+                    names.add(name)
+                    items_per_group.append(items)
+        if not names or is_non_service_day(items_per_group):
+            continue
+        day_group_names[day.get("day_label") or f"day{idx}"] = names
+    return find_days_missing_groups(day_group_names)
+
+
+def find_archive_days_missing_groups(days: dict, date_isos) -> dict:
+    """아카이브의 channel['days']에서 date_isos(해당 주 날짜들)만 골라 누락 의심 날짜를 찾는다.
+
+    휴일/'정보 없음'/이미 재확인한(rechecked) 날은 제외하고, 의심 날짜 -> 그룹명 목록을 돌려준다.
+    """
+    day_group_names = {}
+    for iso in date_isos:
+        day = days.get(iso)
+        if not day or day.get("is_holiday") or day.get("no_data"):
+            continue
+        groups = day.get("lunch_groups") or []
+        if not groups or is_non_service_day([g.get("items", []) for g in groups]):
+            continue
+        day_group_names[iso] = {g.get("group_name") for g in groups}
+
+    suspects = find_days_missing_groups(day_group_names)
+    return {iso: m for iso, m in suspects.items() if not days[iso].get("rechecked")}

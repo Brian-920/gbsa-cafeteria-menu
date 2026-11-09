@@ -94,9 +94,10 @@ RETRY_BACKOFF_SECONDS = [5, 15, 30]
 # 429의 retryDelay가 이 값보다 길면 "분당 한도"가 아니라 "하루 할당량 소진"으로 본다.
 QUOTA_HARD_THRESHOLD_SECONDS = 600
 
-# 이번 실행에서 쓸 수 있는 API 호출 총량 (무료 할당량이 모델당 1일 20회이므로
-# 한 번의 실행이 하루치를 다 먹어버리지 않도록 상한을 둔다)
-DEFAULT_MAX_API_CALLS = 12
+# 이번 실행에서 쓸 수 있는 API 호출 총량. 한 번의 실행이 하루치 할당량을 다 먹지
+# 않게 상한을 두되, 503 재시도(후보 하나에 최대 8회)와 2차 시도, 누락 재확인을
+# 감당하도록 12 -> 20으로 올렸다. (주 모델 gemini-2.5-flash는 무료 1일 약 500회)
+DEFAULT_MAX_API_CALLS = 20
 
 
 def _max_api_calls() -> int:
@@ -111,6 +112,11 @@ def _max_api_calls() -> int:
 MAX_API_CALLS = _max_api_calls()
 
 TRANSIENT_HTTP_CODES = {500, 502, 503, 504}
+
+# 1차 순회에서 '이번 주 글(후보 0)'이 일시적 오류(503 등)로 읽히지 않았을 때,
+# 다른 채널을 모두 처리한 뒤 이만큼(초) 기다렸다가 한 번 더 시도한다.
+# (2026-11-09: R&DB센터 이번 주 글이 두 모델 모두 503이라 한 주 전체가 '정보 없음'이 됨)
+SECOND_PASS_WAIT_SECONDS = int(os.environ.get("OCR_SECOND_PASS_WAIT") or 90)
 
 DATA_DIR = Path(__file__).parent.parent / "output" / "data"
 ARCHIVE_PATH = Path(__file__).parent.parent / "data" / "archive.json"
@@ -200,7 +206,7 @@ class GeminiOcr:
     def available_models(self):
         return [m for m in MODELS if m not in self.exhausted_models]
 
-    def _generate(self, model: str, image_bytes: bytes, mime_type: str) -> dict:
+    def _generate(self, model: str, image_bytes: bytes, mime_type: str, hint: str = "") -> dict:
         if self.calls_used >= MAX_API_CALLS:
             raise BudgetExhausted(
                 f"이번 실행의 API 호출 예산 {MAX_API_CALLS}회를 모두 사용했습니다."
@@ -211,7 +217,7 @@ class GeminiOcr:
             model=model,
             contents=[
                 types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
-                "이 식단표 이미지를 스키마에 맞는 JSON으로 변환해주세요.",
+                "이 식단표 이미지를 스키마에 맞는 JSON으로 변환해주세요." + (f"\n{hint}" if hint else ""),
             ],
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
@@ -221,7 +227,7 @@ class GeminiOcr:
         )
         return json.loads((response.text or "").strip())
 
-    def _ocr_with_model(self, model: str, image_bytes: bytes, mime_type: str) -> dict:
+    def _ocr_with_model(self, model: str, image_bytes: bytes, mime_type: str, hint: str = "") -> dict:
         """한 모델로 OCR을 시도한다. 일시적 오류는 백오프 후 재시도.
 
         돌려주는 값:
@@ -233,7 +239,7 @@ class GeminiOcr:
         """
         for attempt in range(len(RETRY_BACKOFF_SECONDS) + 1):
             try:
-                return self._generate(model, image_bytes, mime_type)
+                return self._generate(model, image_bytes, mime_type, hint)
 
             except genai_errors.APIError as e:
                 code = getattr(e, "code", None)
@@ -281,27 +287,77 @@ class GeminiOcr:
 
         return None
 
-    def ocr_image(self, image_path: Path) -> dict:
-        """캐시를 먼저 보고, 없으면 모델 우선순위대로 OCR한다. 실패하면 None."""
+    def _ocr_any_model(self, image_bytes: bytes, mime_type: str, hint: str = ""):
+        """모델 우선순위대로 시도해 (결과, 모델명)을 돌려준다. 전부 실패하면 (None, None)."""
+        for model in self.available_models():
+            result = self._ocr_with_model(model, image_bytes, mime_type, hint)
+            if result is not None:
+                return result, model
+        return None, None
+
+    def ocr_image(self, image_path: Path, channel_name: str = None):
+        """캐시를 먼저 보고, 없으면 모델 우선순위대로 OCR한다.
+
+        돌려주는 값: (OCR 결과 또는 None, rechecked)
+          rechecked: '표의 행이 빠진 것 같아' 힌트를 주고 한 번 더 읽어본 결과인지.
+                     한 번 재확인한 이미지는 같은 이유로 다시 API를 부르지 않는다.
+
+        2026-11-09 경과원 월요일 칸에서 '중식 일반식' 행이 통째로 빠진 채 읽혔고,
+        그 결과가 캐시에 남아 계속 재사용되는 문제가 있어 누락 점검 + 재확인을 추가했다.
+        """
         image_bytes = image_path.read_bytes()
         key = image_key(image_bytes)
-
-        cached = self.cache.get(key)
-        if cached is not None:
-            print("    (캐시 적중 — API 호출 없음)")
-            return cached
-
         mime_type = guess_mime_type(image_path)
-        for model in self.available_models():
-            result = self._ocr_with_model(model, image_bytes, mime_type)
-            if result is not None:
-                self.cache.put(key, result, model)
-                return result
 
-        return None
+        entry = self.cache.get_entry(key)
+        if entry is not None:
+            print("    (캐시 적중 — API 호출 없음)")
+            result = entry.get("ocr")
+            rechecked = bool(entry.get("recheck_done"))
+            model_used = entry.get("model", "")
+        else:
+            result, model_used = self._ocr_any_model(image_bytes, mime_type)
+            if result is None:
+                return None, False
+            rechecked = False
+            self.cache.put(key, result, model_used)
+
+        if not channel_name or not result.get("days") or rechecked:
+            return result, rechecked
+
+        missing = rules.find_missing_groups_in_menu(result, channel_name)
+        if not missing:
+            return result, False
+
+        summary = ", ".join(f"{day}: {'/'.join(groups)}" for day, groups in missing.items())
+        print(f"    [누락 의심] {summary} -> 힌트를 주고 한 번 더 읽어봅니다.")
+        hint = (
+            "주의: 이전 판독에서 다음 행이 누락된 것으로 보입니다 - "
+            + "; ".join(f"{day}의 '{'/'.join(groups)}'" for day, groups in missing.items())
+            + ". 표의 모든 요일 열에서 모든 행(코너)을 빠짐없이 읽어 days 전체를 다시 출력하세요. "
+            "실제로 비어 있는 칸만 빈 items로 두세요."
+        )
+        try:
+            retry, retry_model = self._ocr_any_model(image_bytes, mime_type, hint)
+        except (QuotaExhausted, BudgetExhausted) as e:
+            print(f"    [누락 재확인 생략] {e}")
+            return result, False
+
+        if retry is None or not retry.get("days"):
+            print("    [누락 재확인 실패] 기존 결과를 유지하고 다음 실행에서 다시 시도합니다.")
+            return result, False
+
+        retry_missing = rules.find_missing_groups_in_menu(retry, channel_name)
+        if sum(len(v) for v in retry_missing.values()) <= sum(len(v) for v in missing.values()):
+            result, model_used = retry, retry_model
+            print(f"    [누락 재확인 완료] 남은 의심: {retry_missing or '없음'}")
+        else:
+            print("    [누락 재확인] 새 결과가 더 나빠 기존 결과를 유지합니다.")
+        self.cache.put(key, result, model_used or "", recheck_done=True)
+        return result, True
 
 
-def try_candidates(ocr: GeminiOcr, candidates: list) -> dict:
+def try_candidates(ocr: GeminiOcr, candidates: list, channel_name: str = None) -> dict:
     """후보를 최신순으로 순회하며 '이번 주 식단표'를 찾을 때까지 OCR한다."""
     attempts = []
 
@@ -315,7 +371,7 @@ def try_candidates(ocr: GeminiOcr, candidates: list) -> dict:
 
         image_path = Path(cand["local_image_path"])
         print(f"  [후보 {idx}] OCR 시도")
-        menu_json = ocr.ocr_image(image_path)
+        menu_json, rechecked = ocr.ocr_image(image_path, channel_name)
 
         if menu_json is None:
             print(f"  [후보 {idx}] OCR 실패 (재시도/대체 모델까지 모두 실패)")
@@ -347,14 +403,21 @@ def try_candidates(ocr: GeminiOcr, candidates: list) -> dict:
             "post_url": cand.get("post_url"),
             "source_title": cand.get("title"),
             "matched_candidate_index": idx,
+            "rechecked": rechecked,
             "menu": menu_json,
             "candidate_attempts": attempts,
         }
 
-    return {
+    outcome = {
         "status": "not_found",
         "candidate_attempts": attempts,
     }
+    # 최신 글을 일시적 오류로 못 읽은 경우: 화면의 '원본 게시글 보기'가 지난주 글을
+    # 가리키지 않도록 최신 글 주소를 함께 남긴다.
+    if attempts and attempts[0].get("result") == "ocr_error":
+        outcome["latest_post_url"] = candidates[0].get("post_url")
+        outcome["transient_failure"] = True
+    return outcome
 
 
 def load_channels_needing_ocr() -> set:
@@ -424,7 +487,7 @@ def main():
             continue
 
         try:
-            outcome = try_candidates(ocr, candidates)
+            outcome = try_candidates(ocr, candidates, name)
         except (QuotaExhausted, BudgetExhausted) as e:
             halt_reason = type(e).__name__
             gh_warning(
@@ -444,6 +507,29 @@ def main():
             print(f"[{name}] 후보 {len(candidates)}개 내에서 이번 주 식단표를 찾지 못함 -> not_found 처리")
 
         menu_outputs.append(outcome)
+
+    # 2차 시도: 일시적 오류(503 등)로 이번 주 글을 못 읽은 채널을 잠시 뒤 한 번 더 시도.
+    retry_targets = [
+        (i, o) for i, o in enumerate(menu_outputs)
+        if o.get("transient_failure") and not halt_reason
+    ]
+    if retry_targets:
+        names = [o["name"] for _, o in retry_targets]
+        print(f"\n[ocr_menu] 일시적 오류로 못 읽은 채널 {names} — {SECOND_PASS_WAIT_SECONDS}초 후 2차 시도")
+        time.sleep(SECOND_PASS_WAIT_SECONDS)
+        entries_by_name = {e["name"]: e for e in scrape_results}
+        for i, old in retry_targets:
+            name = old["name"]
+            candidates = entries_by_name[name].get("candidates") or []
+            print(f"\n=== [{name}] 2차 OCR 시도 ===")
+            try:
+                outcome = try_candidates(ocr, candidates, name)
+            except (QuotaExhausted, BudgetExhausted) as e:
+                gh_warning(f"[{name}] 2차 OCR 중단: {e}")
+                break
+            outcome["name"] = name
+            outcome["label"] = old["label"]
+            menu_outputs[i] = outcome
 
     cache.save()
 
