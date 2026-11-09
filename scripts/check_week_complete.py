@@ -19,6 +19,8 @@ import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import rules
+
 ARCHIVE_PATH = Path(__file__).parent.parent / "data" / "archive.json"
 KST = timezone(timedelta(hours=9))
 CHANNELS = ["gbsa", "rdb_center", "nano_gaeram"]
@@ -47,6 +49,20 @@ def channel_has_real_data(archive: dict, channel: str, date_iso: str) -> bool:
     return bool(day.get("lunch_groups")) or bool(day.get("dinner_groups"))
 
 
+def channel_suspect_days(archive: dict, channel: str, now: datetime = None) -> dict:
+    """이번 주 중 '표의 행이 OCR에서 빠진 것 같은' 날짜 -> 그룹명 목록.
+
+    데이터가 비어 있지는 않지만 같은 주 다른 요일에 있는 중식 그룹이 빠진 경우
+    (예: 2026-11-09 경과원 월요일의 '중식 일반식')를 잡아낸다. 한 번 재확인한
+    날(rechecked)은 제외하므로 재시도가 무한히 반복되지 않는다.
+    """
+    days = archive.get(channel, {}).get("days", {})
+    # 비교 기준은 '이번 주 월~금 전체'다. 식단표는 한 주치가 한꺼번에 올라오므로
+    # 월요일 아침에도 화~금 데이터와 견줘서 월요일 누락을 알아챌 수 있다.
+    week_isos = [d.isoformat() for d in rules.current_week_weekdays(now)]
+    return rules.find_archive_days_missing_groups(days, week_isos)
+
+
 def channels_missing_data(archive: dict, now: datetime = None) -> set:
     """이번 주(월~오늘) 중 아직 실제 식단 데이터가 없는 채널 이름 집합을 돌려준다.
 
@@ -60,6 +76,9 @@ def channels_missing_data(archive: dict, now: datetime = None) -> set:
         for channel in CHANNELS:
             if not channel_has_real_data(archive, channel, date_iso):
                 missing.add(channel)
+    for channel in CHANNELS:
+        if channel_suspect_days(archive, channel, now):
+            missing.add(channel)
     return missing
 
 
@@ -87,6 +106,10 @@ def main():
         for channel in CHANNELS:
             if not channel_has_real_data(archive, channel, date_iso):
                 missing.append(f"{channel}:{date_iso}")
+
+    for channel in CHANNELS:
+        for date_iso, groups in channel_suspect_days(archive, channel).items():
+            missing.append(f"{channel}:{date_iso}(누락 의심: {'/'.join(groups)})")
 
     complete = len(missing) == 0
     if complete:

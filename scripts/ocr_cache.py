@@ -60,7 +60,8 @@ class OcrCache:
             return
         self.entries = raw.get("entries") or {}
 
-    def get(self, key: str):
+    def get_entry(self, key: str):
+        """캐시 항목 전체(ocr, model, recheck_done ...)를 돌려준다. 없으면 None."""
         if self.disabled:
             return None
         entry = self.entries.get(key)
@@ -70,13 +71,22 @@ class OcrCache:
         self.hits += 1
         entry["last_used"] = datetime.now(timezone.utc).isoformat()
         self._dirty = True
-        return entry.get("ocr")
+        return entry
 
-    def put(self, key: str, ocr: dict, model: str):
+    def get(self, key: str):
+        entry = self.get_entry(key)
+        return entry.get("ocr") if entry else None
+
+    def put(self, key: str, ocr: dict, model: str, recheck_done: bool = False):
+        """recheck_done: 누락 의심 때문에 한 번 더 읽어본 결과인지.
+        True이면 이후 실행에서 같은 이유로 API를 또 부르지 않는다."""
         if self.disabled:
             return
         now = datetime.now(timezone.utc).isoformat()
-        self.entries[key] = {"ocr": ocr, "model": model, "cached_at": now, "last_used": now}
+        entry = {"ocr": ocr, "model": model, "cached_at": now, "last_used": now}
+        if recheck_done:
+            entry["recheck_done"] = True
+        self.entries[key] = entry
         self._dirty = True
 
     def save(self):

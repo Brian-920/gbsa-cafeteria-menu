@@ -41,7 +41,7 @@ def save_archive(archive: dict):
     ARCHIVE_PATH.write_text(json.dumps(archive, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def build_day_entry(day: dict, channel_name: str, run_year: int, holidays: dict):
+def build_day_entry(day: dict, channel_name: str, run_year: int, holidays: dict, rechecked: bool = False):
     md = rules.extract_month_day(day)
     if md is None:
         return None
@@ -66,7 +66,7 @@ def build_day_entry(day: dict, channel_name: str, run_year: int, holidays: dict)
 
     holiday_name = holidays.get(date_iso)
 
-    return {
+    entry = {
         "date": date_iso,
         "weekday_label": WEEKDAY_KR[d.weekday()],
         "is_holiday": holiday_name is not None,
@@ -74,6 +74,11 @@ def build_day_entry(day: dict, channel_name: str, run_year: int, holidays: dict)
         "lunch_groups": lunch_groups,
         "dinner_groups": dinner_groups,
     }
+    if rechecked:
+        # 누락 의심으로 한 번 더 읽어본 결과. check_week_complete가 같은 이유로
+        # 이 날짜를 다시 '미완료'로 판정해 재시도를 반복하지 않게 하는 표시.
+        entry["rechecked"] = True
+    return entry
 
 
 def fill_missing_week_with_placeholder(channel_archive: dict, holidays: dict):
@@ -137,6 +142,10 @@ def main():
             continue
 
         if entry.get("status") != "success":
+            # 최신 글을 일시적 오류로 못 읽은 경우, '원본 게시글 보기'가 지난주 글을
+            # 가리키지 않도록 최신 글 주소로 갱신한다.
+            if entry.get("latest_post_url"):
+                archive[name]["post_url"] = entry["latest_post_url"]
             filled = fill_missing_week_with_placeholder(archive[name], holidays)
             print(
                 f"[merge_archive] {name}: 이번 실행에서 식단표를 찾지 못했습니다"
@@ -148,7 +157,7 @@ def main():
         menu = entry.get("menu", {})
         added = 0
         for day in menu.get("days", []):
-            day_entry = build_day_entry(day, name, run_year, holidays)
+            day_entry = build_day_entry(day, name, run_year, holidays, bool(entry.get("rechecked")))
             if day_entry is None:
                 continue
             archive[name]["days"][day_entry["date"]] = day_entry
