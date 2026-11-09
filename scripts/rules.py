@@ -66,6 +66,16 @@ CHANNEL_DINNER_GROUP_OVERRIDE = {
     "rdb_center": {"일반식"},
 }
 
+# 요일별로 석식을 운영하지 않는 채널 (0=월 ... 4=금).
+# 경기R&DB센터는 금요일 석식을 운영하지 않는다. 그런데 표의 금요일 석식 칸은 비어 있어서
+# OCR이 바로 아래 Take Out 행을 석식 메뉴로 잘못 읽는 일이 있었다(2026-11-13).
+# 그래서 이 요일은 OCR 결과와 상관없이 석식을 '미운영'으로 고정한다.
+CHANNEL_NO_DINNER_WEEKDAYS = {
+    "rdb_center": {4},
+}
+
+NO_DINNER_GROUPS = [{"group_name": "석식", "items": ["미운영"]}]
+
 # 채널별로 특정 그룹에서 매번 잘못 섞여 들어오는 항목을 제외 처리.
 CHANNEL_GROUP_ITEM_EXCLUDE = {
     "rdb_center": {
@@ -196,6 +206,13 @@ def filter_excluded_items(channel_name, group_name, items):
     if not exclude_set:
         return items
     return [it for it in items if it not in exclude_set]
+
+
+def apply_day_rules(channel_name, day_date, lunch_groups, dinner_groups):
+    """날짜(date)가 정해진 뒤 적용하는 채널별 요일 규칙. (lunch, dinner)를 돌려준다."""
+    if day_date.weekday() in CHANNEL_NO_DINNER_WEEKDAYS.get(channel_name, set()):
+        return lunch_groups, [dict(g, items=list(g["items"])) for g in NO_DINNER_GROUPS]
+    return lunch_groups, dinner_groups
 
 
 def display_label(channel_name, fallback_label):

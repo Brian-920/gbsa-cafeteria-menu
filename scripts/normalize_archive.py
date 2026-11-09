@@ -17,6 +17,7 @@ rules.py의 정리 규칙(그룹명 통일, 병합 그룹 분리, 중식/석식 
 
 import argparse
 import json
+from datetime import date
 from collections import Counter
 from pathlib import Path
 
@@ -43,6 +44,11 @@ def normalize_day(channel_name: str, day: dict):
             (dinner if bucket == "dinner" else lunch).append(
                 {"group_name": name, "items": items}
             )
+
+    if day.get("date") and not day.get("is_holiday") and not day.get("no_data"):
+        lunch, dinner = rules.apply_day_rules(
+            channel_name, date.fromisoformat(day["date"]), lunch, dinner
+        )
 
     day["lunch_groups"] = lunch
     day["dinner_groups"] = dinner

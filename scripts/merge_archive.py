@@ -64,6 +64,8 @@ def build_day_entry(day: dict, channel_name: str, run_year: int, holidays: dict,
             target = dinner_groups if bucket == "dinner" else lunch_groups
             target.append({"group_name": group_name, "items": items})
 
+    lunch_groups, dinner_groups = rules.apply_day_rules(channel_name, d, lunch_groups, dinner_groups)
+
     holiday_name = holidays.get(date_iso)
 
     entry = {

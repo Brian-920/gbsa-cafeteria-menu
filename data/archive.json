@@ -4724,8 +4724,10 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
-            "items": []
+            "group_name": "석식",
+            "items": [
+              "미운영"
+            ]
           }
         ]
       },
@@ -5290,8 +5292,10 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
-            "items": []
+            "group_name": "석식",
+            "items": [
+              "미운영"
+            ]
           }
         ]
       },
@@ -5629,8 +5633,10 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "석식 일반식",
-            "items": []
+            "group_name": "석식",
+            "items": [
+              "미운영"
+            ]
           }
         ]
       },
@@ -5967,11 +5973,9 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
+            "group_name": "석식",
             "items": [
-              "닭가슴살샐러드&드레싱",
-              "한끼슬림팩 or 한끼선식팩",
-              "샌드위치&음료"
+              "미운영"
             ]
           }
         ]
@@ -6280,8 +6284,10 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
-            "items": []
+            "group_name": "석식",
+            "items": [
+              "미운영"
+            ]
           }
         ]
       },
@@ -6572,11 +6578,9 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
+            "group_name": "석식",
             "items": [
-              "닭가슴살샐러드&드레싱",
-              "한끼슬림팩 or 한끼선식팩",
-              "샌드위치&음료"
+              "미운영"
             ]
           }
         ]
@@ -6887,8 +6891,10 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
-            "items": []
+            "group_name": "석식",
+            "items": [
+              "미운영"
+            ]
           }
         ]
       },
@@ -7202,8 +7208,10 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "석식 일반식",
-            "items": []
+            "group_name": "석식",
+            "items": [
+              "미운영"
+            ]
           }
         ]
       },
@@ -7510,11 +7518,9 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
+            "group_name": "석식",
             "items": [
-              "닭가슴살샐러드&드레싱",
-              "한끼슬림팩 or 한끼선식팩",
-              "샌드위치&음료"
+              "미운영"
             ]
           }
         ]
@@ -7827,11 +7833,9 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
+            "group_name": "석식",
             "items": [
-              "닭가슴살샐러드&드레싱",
-              "한끼슬림팩 or 한끼선식팩",
-              "샌드위치&음료"
+              "미운영"
             ]
           }
         ]
@@ -8323,8 +8327,10 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
-            "items": []
+            "group_name": "석식",
+            "items": [
+              "미운영"
+            ]
           }
         ]
       },
@@ -8853,8 +8859,10 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
-            "items": []
+            "group_name": "석식",
+            "items": [
+              "미운영"
+            ]
           }
         ]
       },
@@ -9166,8 +9174,10 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
-            "items": []
+            "group_name": "석식",
+            "items": [
+              "미운영"
+            ]
           }
         ]
       },
@@ -9481,7 +9491,14 @@
             ]
           }
         ],
-        "dinner_groups": []
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "미운영"
+            ]
+          }
+        ]
       },
       "2026-11-02": {
         "date": "2026-11-02",
@@ -9808,7 +9825,14 @@
             ]
           }
         ],
-        "dinner_groups": []
+        "dinner_groups": [
+          {
+            "group_name": "석식",
+            "items": [
+              "미운영"
+            ]
+          }
+        ]
       },
       "2026-11-09": {
         "date": "2026-11-09",
@@ -10123,11 +10147,9 @@
         ],
         "dinner_groups": [
           {
-            "group_name": "일반식",
+            "group_name": "석식",
             "items": [
-              "닭가슴살샐러드&드레싱",
-              "한끼슬림팩 or 한끼선식팩",
-              "샌드위치&음료"
+              "미운영"
             ]
           }
         ]
