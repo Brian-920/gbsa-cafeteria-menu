@@ -228,37 +228,43 @@ def apply_day_rules(channel_name, day_date, lunch_groups, dinner_groups):
 #
 # 항목 설명:
 #   start / end    : 적용 기간 (양 끝 포함, 'YYYY-MM-DD')
-#   notice         : 화면 상단 안내 카드 (title 1줄 + lines 여러 줄)
+#   layout         : 'list'면 메뉴를 번호 매긴 한 줄 목록으로 간결하게 표시
+#   notice         : 화면 상단 안내 카드 (icon, title, subtitle[줄 목록], info[아이콘/라벨/내용], footnote)
 #   lunch_groups   : 중식 칸에 보여줄 그룹 목록. 그룹에 'dates'를 넣으면
 #                    그 날짜에만 표시한다(예: 일부 날짜만 오는 푸드트럭).
+#                    'tag'를 넣으면 그 줄 오른쪽에 작은 꼬리표로 표시한다.
 #   dinner_groups  : 석식 칸에 보여줄 그룹 목록 (형식 동일)
 CHANNEL_SPECIAL_PERIODS = {
     "gbsa": [
         {
             "start": "2026-11-23",
             "end": "2026-11-27",
+            # 'list' = 코너별 카드 대신 번호 매긴 한 줄 목록으로 간결하게 표시(푸드트럭용)
+            "layout": "list",
             "notice": {
-                "title": "구내식당 재정비 기간 · 오늘 점심은 푸드트럭!",
-                "lines": [
-                    "새 구내식당 운영(11. 30.(월)부터) 준비 기간에는 식단표가 없습니다.",
-                    "운영 시간: 11:00 ~ 14:00",
-                    "운영 장소: 경과원 본관동 전면 광장",
-                    "푸드트럭 메뉴 구매 후 B1F 구내식당에서 드실 수 있습니다.",
-                    "※ 시간 및 메뉴는 운영 상황에 따라 변경될 수 있습니다.",
+                "icon": "local_shipping",
+                "title": "오늘 점심은 푸드트럭!",
+                "subtitle": ["구내식당 재정비 기간", "11.30.(월) 새 구내식당 오픈"],
+                "info": [
+                    {"icon": "schedule", "label": "시간", "text": "11:00 ~ 14:00"},
+                    {"icon": "location_on", "label": "장소", "text": "경과원 본관동 전면 광장"},
+                    {"icon": "restaurant", "label": "취식", "text": "구매 후 B1F 구내식당 이용"},
                 ],
+                "footnote": "시간 및 메뉴는 운영 상황에 따라 변경될 수 있습니다.",
             },
             "lunch_groups": [
-                {"group_name": "푸드트럭 ①", "items": ["순대", "떡볶이", "어묵"]},
-                {"group_name": "푸드트럭 ②", "items": ["뉴욕핫도그"]},
-                {"group_name": "푸드트럭 ③", "items": ["부타동", "규동", "제육덮밥", "통모짜튀김"]},
+                {"group_name": "푸드트럭 1", "items": ["순대", "떡볶이", "어묵"]},
+                {"group_name": "푸드트럭 2", "items": ["뉴욕핫도그"]},
+                {"group_name": "푸드트럭 3", "items": ["부타동", "규동", "제육덮밥", "통모짜튀김"]},
                 {
-                    "group_name": "푸드트럭 ④",
+                    "group_name": "푸드트럭 4",
                     "items": ["필리스테이크", "감자튀김"],
                     "dates": ["2026-11-23", "2026-11-24", "2026-11-25"],
+                    "tag": "~11/25(수)",
                 },
             ],
             "dinner_groups": [
-                {"group_name": "석식", "items": ["미운영 (푸드트럭은 11:00~14:00 운영)"]},
+                {"group_name": "석식", "items": ["석식은 운영하지 않습니다"]},
             ],
         },
     ],
@@ -292,7 +298,10 @@ def special_period_groups(period, key, date_iso):
     for g in period.get(key, []):
         if g.get("dates") and date_iso not in g["dates"]:
             continue
-        groups.append({"group_name": g["group_name"], "items": list(g["items"])})
+        group = {"group_name": g["group_name"], "items": list(g["items"])}
+        if g.get("tag"):
+            group["tag"] = g["tag"]
+        groups.append(group)
     return groups
 
 

@@ -134,6 +134,7 @@ def apply_special_periods(archive: dict, holidays: dict) -> dict:
                 "lunch_groups": rules.special_period_groups(period, "lunch_groups", date_iso),
                 "dinner_groups": rules.special_period_groups(period, "dinner_groups", date_iso),
                 "notice": period.get("notice"),
+                "layout": period.get("layout"),
                 "special": True,
             }
             applied[name] = applied.get(name, 0) + 1
