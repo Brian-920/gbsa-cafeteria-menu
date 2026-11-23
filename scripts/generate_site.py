@@ -351,17 +351,74 @@ const FACILITY_ORDER = __FACILITY_ORDER_JSON__;
   // 예: 구내식당 업체 교체 기간의 푸드트럭 운영 안내
   function renderNotice(notice) {
     if (!notice || !notice.title) return "";
-    var lines = (notice.lines || []).map(function (line) {
-      return '<li class="text-body-sm text-amber-800 leading-relaxed">' + line + '</li>';
+    var info = (notice.info || []).map(function (row) {
+      return (
+        '<li class="flex items-center gap-2.5 px-3 py-2">' +
+          '<span class="material-symbols-outlined text-[18px] text-amber-600">' + (row.icon || "info") + '</span>' +
+          '<span class="w-8 flex-none text-label-md text-amber-700">' + (row.label || "") + '</span>' +
+          '<span class="text-body-sm text-on-surface">' + row.text + '</span>' +
+        '</li>'
+      );
     }).join("");
     return (
-      '<div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">' +
-        '<span class="material-symbols-outlined text-amber-600">local_shipping</span>' +
-        '<div class="space-y-1">' +
-          '<p class="text-body-sm font-semibold text-amber-900">' + notice.title + '</p>' +
-          (lines ? '<ul class="space-y-1">' + lines + '</ul>' : '') +
+      '<div class="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3 break-keep">' +
+        '<div class="flex items-center gap-3">' +
+          '<span class="flex-none w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">' +
+            '<span class="material-symbols-outlined text-amber-600">' + (notice.icon || "campaign") + '</span>' +
+          '</span>' +
+          '<div class="min-w-0">' +
+            '<p class="text-body-lg font-bold text-amber-900">' + notice.title + '</p>' +
+            (notice.subtitle ? '<p class="text-label-md text-amber-700">' + notice.subtitle + '</p>' : '') +
+          '</div>' +
         '</div>' +
+        (info ? '<ul class="bg-white rounded-lg border border-amber-100 divide-y divide-amber-100">' + info + '</ul>' : '') +
+        (notice.footnote ? '<p class="text-[12px] leading-snug text-amber-700">※ ' + notice.footnote + '</p>' : '') +
       '</div>'
+    );
+  }
+
+  function sectionHeader(title, badgeClass, extra) {
+    return (
+      '<div class="flex items-center gap-2">' +
+        '<span class="px-2 py-1 ' + badgeClass + ' text-white text-[10px] font-bold rounded uppercase tracking-wider">' + title + '</span>' +
+        '<div class="h-px flex-1 bg-slate-100"></div>' +
+        (extra ? '<span class="text-label-md text-on-surface-variant">' + extra + '</span>' : '') +
+      '</div>'
+    );
+  }
+
+  // layout: 'list' — 그룹마다 번호 + 메뉴를 한 줄로 묶어 보여준다(푸드트럭처럼 그룹이 많고 항목이 짧을 때).
+  function renderListSection(title, badgeClass, groups, countLabel) {
+    var nonEmpty = (groups || []).filter(function (g) { return g.items && g.items.length > 0; });
+    var rows = nonEmpty.map(function (g, i) {
+      return (
+        '<li class="flex items-start gap-3 px-4 py-3">' +
+          '<span class="flex-none mt-0.5 w-6 h-6 rounded-full bg-primary text-white text-[12px] font-bold flex items-center justify-center">' + (i + 1) + '</span>' +
+          '<p class="flex-1 min-w-0 text-body-sm text-on-surface leading-relaxed break-keep">' + g.items.join('<span class="text-slate-300 mx-1.5">·</span>') + '</p>' +
+          (g.tag ? '<span class="flex-none mt-0.5 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-semibold text-amber-700 whitespace-nowrap">' + g.tag + '</span>' : '') +
+        '</li>'
+      );
+    }).join("");
+    return (
+      '<section class="space-y-3">' +
+        sectionHeader(title, badgeClass, nonEmpty.length ? nonEmpty.length + countLabel : "") +
+        (rows
+          ? '<ul class="rounded-lg border border-slate-200 bg-white divide-y divide-slate-100">' + rows + '</ul>'
+          : '<p class="text-body-sm text-on-surface-variant py-2">정보 없음</p>') +
+      '</section>'
+    );
+  }
+
+  // 운영하지 않는 끼니를 카드 없이 한 줄 문구로 표시
+  function renderNoteSection(title, badgeClass, groups) {
+    var text = (groups || []).map(function (g) { return (g.items || []).join(" "); }).join(" ") || "정보 없음";
+    return (
+      '<section class="space-y-3">' +
+        sectionHeader(title, badgeClass) +
+        '<p class="flex items-center gap-1.5 text-body-sm text-on-surface-variant">' +
+          '<span class="material-symbols-outlined text-[18px] text-slate-400">block</span>' + text +
+        '</p>' +
+      '</section>'
     );
   }
 
@@ -377,6 +434,15 @@ const FACILITY_ORDER = __FACILITY_ORDER_JSON__;
             '<p class="text-body-sm font-semibold text-blue-900">' + (day.holiday_name || "공휴일") + '</p>' +
             '<p class="text-body-sm text-blue-700">구내식당이 운영되지 않습니다.</p>' +
           '</div>' +
+        '</div>'
+      );
+    }
+    if (day.layout === "list") {
+      return (
+        '<div class="grid grid-cols-1 gap-6">' +
+          renderNotice(day.notice) +
+          renderListSection("중식", "bg-accent-blue", day.lunch_groups || [], "대 운영") +
+          renderNoteSection("석식", "bg-slate-800", day.dinner_groups || []) +
         '</div>'
       );
     }
