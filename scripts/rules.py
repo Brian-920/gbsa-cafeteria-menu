@@ -215,6 +215,87 @@ def apply_day_rules(channel_name, day_date, lunch_groups, dinner_groups):
     return lunch_groups, dinner_groups
 
 
+# ---------------------------------------------------------------------------
+# 임시 운영 기간 (식단표 대신 안내문 + 고정 메뉴를 보여주는 기간)
+# ---------------------------------------------------------------------------
+# 구내식당 위탁업체 교체, 공사 등으로 식단표가 게시되지 않는 기간을 지정한다.
+# 이 기간의 날짜는 OCR 결과와 관계없이 아래 내용으로 고정되며,
+# 재시도 워크플로우도 '데이터 완료'로 간주해 불필요하게 OCR을 돌리지 않는다.
+#
+# 2026-11-23 ~ 11-27: 경기도경제과학진흥원 구내식당 위탁업체 계약 종료(11-20)
+# -> 새 업체 운영 시작(11-30) 전까지 푸드트럭 운영 (본관동 전면 광장, 11:00~14:00).
+# 푸드트럭 메뉴 구매 후 B1F 구내식당에서 취식 가능.
+#
+# 항목 설명:
+#   start / end    : 적용 기간 (양 끝 포함, 'YYYY-MM-DD')
+#   notice         : 화면 상단 안내 카드 (title 1줄 + lines 여러 줄)
+#   lunch_groups   : 중식 칸에 보여줄 그룹 목록. 그룹에 'dates'를 넣으면
+#                    그 날짜에만 표시한다(예: 일부 날짜만 오는 푸드트럭).
+#   dinner_groups  : 석식 칸에 보여줄 그룹 목록 (형식 동일)
+CHANNEL_SPECIAL_PERIODS = {
+    "gbsa": [
+        {
+            "start": "2026-11-23",
+            "end": "2026-11-27",
+            "notice": {
+                "title": "구내식당 재정비 기간 · 오늘 점심은 푸드트럭!",
+                "lines": [
+                    "새 구내식당 운영(11. 30.(월)부터) 준비 기간에는 식단표가 없습니다.",
+                    "운영 시간: 11:00 ~ 14:00",
+                    "운영 장소: 경과원 본관동 전면 광장",
+                    "푸드트럭 메뉴 구매 후 B1F 구내식당에서 드실 수 있습니다.",
+                    "※ 시간 및 메뉴는 운영 상황에 따라 변경될 수 있습니다.",
+                ],
+            },
+            "lunch_groups": [
+                {"group_name": "푸드트럭 ①", "items": ["순대", "떡볶이", "어묵"]},
+                {"group_name": "푸드트럭 ②", "items": ["뉴욕핫도그"]},
+                {"group_name": "푸드트럭 ③", "items": ["부타동", "규동", "제육덮밥", "통모짜튀김"]},
+                {
+                    "group_name": "푸드트럭 ④",
+                    "items": ["필리스테이크", "감자튀김"],
+                    "dates": ["2026-11-23", "2026-11-24", "2026-11-25"],
+                },
+            ],
+            "dinner_groups": [
+                {"group_name": "석식", "items": ["미운영 (푸드트럭은 11:00~14:00 운영)"]},
+            ],
+        },
+    ],
+}
+
+
+def special_period_for(channel_name, date_iso):
+    """해당 채널·날짜에 적용되는 임시 운영 기간 설정을 돌려준다. 없으면 None."""
+    for period in CHANNEL_SPECIAL_PERIODS.get(channel_name, []):
+        if period["start"] <= date_iso <= period["end"]:
+            return period
+    return None
+
+
+def special_period_dates(channel_name):
+    """채널의 임시 운영 기간에 속하는 평일(월~금) 날짜(date 객체) 목록."""
+    result = []
+    for period in CHANNEL_SPECIAL_PERIODS.get(channel_name, []):
+        d = datetime.strptime(period["start"], "%Y-%m-%d").date()
+        end = datetime.strptime(period["end"], "%Y-%m-%d").date()
+        while d <= end:
+            if d.weekday() < 5:
+                result.append(d)
+            d += timedelta(days=1)
+    return result
+
+
+def special_period_groups(period, key, date_iso):
+    """period[key]의 그룹 중 date_iso에 해당하는 것만 (group_name, items) 형태로 복사한다."""
+    groups = []
+    for g in period.get(key, []):
+        if g.get("dates") and date_iso not in g["dates"]:
+            continue
+        groups.append({"group_name": g["group_name"], "items": list(g["items"])})
+    return groups
+
+
 def display_label(channel_name, fallback_label):
     return DISPLAY_LABEL_OVERRIDE.get(channel_name, fallback_label)
 
@@ -296,8 +377,8 @@ def find_archive_days_missing_groups(days: dict, date_isos) -> dict:
     day_group_names = {}
     for iso in date_isos:
         day = days.get(iso)
-        if not day or day.get("is_holiday") or day.get("no_data"):
-            continue
+        if not day or day.get("is_holiday") or day.get("no_data") or day.get("special"):
+            continue  # 공휴일/정보 없음/임시 운영 기간(푸드트럭 등)은 점검 대상 아님
         groups = day.get("lunch_groups") or []
         if not groups or is_non_service_day([g.get("items", []) for g in groups]):
             continue

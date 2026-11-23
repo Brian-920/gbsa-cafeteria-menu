@@ -39,6 +39,10 @@ def current_week_weekdays_up_to_today(now: datetime = None):
 
 
 def channel_has_real_data(archive: dict, channel: str, date_iso: str) -> bool:
+    if rules.special_period_for(channel, date_iso):
+        # 임시 운영 기간(예: 구내식당 업체 교체 중 푸드트럭 운영)은 식단표가 원래 없다.
+        # merge_archive.py가 안내문을 채우므로 완료로 간주하고 OCR을 돌리지 않는다.
+        return True
     day = archive.get(channel, {}).get("days", {}).get(date_iso)
     if day is None:
         return False
