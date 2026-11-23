@@ -347,6 +347,24 @@ const FACILITY_ORDER = __FACILITY_ORDER_JSON__;
     );
   }
 
+  // 임시 운영 기간 안내 카드 (rules.py의 CHANNEL_SPECIAL_PERIODS -> day.notice)
+  // 예: 구내식당 업체 교체 기간의 푸드트럭 운영 안내
+  function renderNotice(notice) {
+    if (!notice || !notice.title) return "";
+    var lines = (notice.lines || []).map(function (line) {
+      return '<li class="text-body-sm text-amber-800 leading-relaxed">' + line + '</li>';
+    }).join("");
+    return (
+      '<div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">' +
+        '<span class="material-symbols-outlined text-amber-600">local_shipping</span>' +
+        '<div class="space-y-1">' +
+          '<p class="text-body-sm font-semibold text-amber-900">' + notice.title + '</p>' +
+          (lines ? '<ul class="space-y-1">' + lines + '</ul>' : '') +
+        '</div>' +
+      '</div>'
+    );
+  }
+
   function renderDayContent(day) {
     if (!day) {
       return '<p class="text-body-sm text-on-surface-variant py-2">정보 없음</p>';
@@ -364,6 +382,7 @@ const FACILITY_ORDER = __FACILITY_ORDER_JSON__;
     }
     return (
       '<div class="grid grid-cols-1 gap-6">' +
+        renderNotice(day.notice) +
         renderMealSection("중식", "bg-accent-blue", day.lunch_groups || []) +
         renderMealSection("석식", "bg-slate-800", day.dinner_groups || []) +
       '</div>'

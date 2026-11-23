@@ -42,9 +42,10 @@ CHANNELS = {
         "label": "경기R&DB센터 구내식당",
         "url": "https://pf.kakao.com/_XCVXb/posts",
     },
+    # 2026-11-23: 한국나노기술원 식단표 게시 채널 변경 (_PxhQqX -> _APTxgn)
     "nano_gaeram": {
         "label": "나노기술원 가람푸드써비스 구내식당",
-        "url": "https://pf.kakao.com/_PxhQqX/posts",
+        "url": "https://pf.kakao.com/_APTxgn/posts",
     },
 }
 

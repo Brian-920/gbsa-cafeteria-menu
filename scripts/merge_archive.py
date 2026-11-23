@@ -111,6 +111,35 @@ def fill_missing_week_with_placeholder(channel_archive: dict, holidays: dict):
     return added
 
 
+def apply_special_periods(archive: dict, holidays: dict) -> dict:
+    """rules.CHANNEL_SPECIAL_PERIODS에 지정된 날짜를 안내문 + 고정 메뉴로 덮어쓴다.
+
+    OCR 결과나 '정보 없음' 자리표시보다 우선한다. 매 실행마다 같은 내용으로 다시 쓰므로
+    여러 번 돌아도 결과가 같다(멱등). 공휴일과 겹치면 공휴일 표시는 그대로 유지한다.
+    반환값: {채널명: 적용 일수}
+    """
+    applied = {}
+    for name in rules.CHANNEL_SPECIAL_PERIODS:
+        if name not in archive:
+            continue
+        for d in rules.special_period_dates(name):
+            date_iso = d.isoformat()
+            period = rules.special_period_for(name, date_iso)
+            holiday_name = holidays.get(date_iso)
+            archive[name]["days"][date_iso] = {
+                "date": date_iso,
+                "weekday_label": WEEKDAY_KR[d.weekday()],
+                "is_holiday": holiday_name is not None,
+                "holiday_name": holiday_name,
+                "lunch_groups": rules.special_period_groups(period, "lunch_groups", date_iso),
+                "dinner_groups": rules.special_period_groups(period, "dinner_groups", date_iso),
+                "notice": period.get("notice"),
+                "special": True,
+            }
+            applied[name] = applied.get(name, 0) + 1
+    return applied
+
+
 def main():
     menu_final_path = OUTPUT_DATA_DIR / "menu_final.json"
     if not menu_final_path.exists():
@@ -165,6 +194,9 @@ def main():
             archive[name]["days"][day_entry["date"]] = day_entry
             added += 1
         print(f"[merge_archive] {name}: {added}일치 병합 완료")
+
+    for name, count in apply_special_periods(archive, holidays).items():
+        print(f"[merge_archive] {name}: 임시 운영 기간 {count}일치 안내문/고정 메뉴 적용")
 
     save_archive(archive)
     print(f"\n아카이브 저장 완료: {ARCHIVE_PATH}")
