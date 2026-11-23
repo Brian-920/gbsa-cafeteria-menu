@@ -229,7 +229,7 @@ def apply_day_rules(channel_name, day_date, lunch_groups, dinner_groups):
 # 항목 설명:
 #   start / end    : 적용 기간 (양 끝 포함, 'YYYY-MM-DD')
 #   layout         : 'list'면 메뉴를 번호 매긴 한 줄 목록으로 간결하게 표시
-#   notice         : 화면 상단 안내 카드 (icon, title, subtitle, info[아이콘/라벨/내용], footnote)
+#   notice         : 화면 상단 안내 카드 (icon, title, subtitle[줄 목록], info[아이콘/라벨/내용], footnote)
 #   lunch_groups   : 중식 칸에 보여줄 그룹 목록. 그룹에 'dates'를 넣으면
 #                    그 날짜에만 표시한다(예: 일부 날짜만 오는 푸드트럭).
 #                    'tag'를 넣으면 그 줄 오른쪽에 작은 꼬리표로 표시한다.
@@ -244,7 +244,7 @@ CHANNEL_SPECIAL_PERIODS = {
             "notice": {
                 "icon": "local_shipping",
                 "title": "오늘 점심은 푸드트럭!",
-                "subtitle": "구내식당 재정비 기간 · 11. 30.(월) 새 구내식당 오픈",
+                "subtitle": ["구내식당 재정비 기간", "11.30.(월) 새 구내식당 오픈"],
                 "info": [
                     {"icon": "schedule", "label": "시간", "text": "11:00 ~ 14:00"},
                     {"icon": "location_on", "label": "장소", "text": "경과원 본관동 전면 광장"},

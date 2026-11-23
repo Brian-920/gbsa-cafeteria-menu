@@ -351,9 +351,13 @@ const FACILITY_ORDER = __FACILITY_ORDER_JSON__;
   // 예: 구내식당 업체 교체 기간의 푸드트럭 운영 안내
   function renderNotice(notice) {
     if (!notice || !notice.title) return "";
+    // subtitle은 문자열 또는 줄 목록(배열) — 배열이면 줄마다 문단을 나눈다.
+    var subtitle = [].concat(notice.subtitle || []).map(function (line) {
+      return '<p class="text-label-md text-amber-700">' + line + '</p>';
+    }).join("");
     var info = (notice.info || []).map(function (row) {
       return (
-        '<li class="flex items-center gap-2.5 px-3 py-2">' +
+        '<li class="flex items-center gap-2.5">' +
           '<span class="material-symbols-outlined text-[18px] text-amber-600">' + (row.icon || "info") + '</span>' +
           '<span class="w-8 flex-none text-label-md text-amber-700">' + (row.label || "") + '</span>' +
           '<span class="text-body-sm text-on-surface">' + row.text + '</span>' +
@@ -368,10 +372,10 @@ const FACILITY_ORDER = __FACILITY_ORDER_JSON__;
           '</span>' +
           '<div class="min-w-0">' +
             '<p class="text-body-lg font-bold text-amber-900">' + notice.title + '</p>' +
-            (notice.subtitle ? '<p class="text-label-md text-amber-700">' + notice.subtitle + '</p>' : '') +
+            subtitle +
           '</div>' +
         '</div>' +
-        (info ? '<ul class="bg-white rounded-lg border border-amber-100 divide-y divide-amber-100">' + info + '</ul>' : '') +
+        (info ? '<ul class="space-y-2 border-t border-amber-200 pt-3">' + info + '</ul>' : '') +
         (notice.footnote ? '<p class="text-[12px] leading-snug text-amber-700">※ ' + notice.footnote + '</p>' : '') +
       '</div>'
     );

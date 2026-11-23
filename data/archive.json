@@ -4699,7 +4699,10 @@
         "notice": {
           "icon": "local_shipping",
           "title": "오늘 점심은 푸드트럭!",
-          "subtitle": "구내식당 재정비 기간 · 11. 30.(월) 새 구내식당 오픈",
+          "subtitle": [
+            "구내식당 재정비 기간",
+            "11.30.(월) 새 구내식당 오픈"
+          ],
           "info": [
             {
               "icon": "schedule",
@@ -4771,7 +4774,10 @@
         "notice": {
           "icon": "local_shipping",
           "title": "오늘 점심은 푸드트럭!",
-          "subtitle": "구내식당 재정비 기간 · 11. 30.(월) 새 구내식당 오픈",
+          "subtitle": [
+            "구내식당 재정비 기간",
+            "11.30.(월) 새 구내식당 오픈"
+          ],
           "info": [
             {
               "icon": "schedule",
@@ -4843,7 +4849,10 @@
         "notice": {
           "icon": "local_shipping",
           "title": "오늘 점심은 푸드트럭!",
-          "subtitle": "구내식당 재정비 기간 · 11. 30.(월) 새 구내식당 오픈",
+          "subtitle": [
+            "구내식당 재정비 기간",
+            "11.30.(월) 새 구내식당 오픈"
+          ],
           "info": [
             {
               "icon": "schedule",
@@ -4907,7 +4916,10 @@
         "notice": {
           "icon": "local_shipping",
           "title": "오늘 점심은 푸드트럭!",
-          "subtitle": "구내식당 재정비 기간 · 11. 30.(월) 새 구내식당 오픈",
+          "subtitle": [
+            "구내식당 재정비 기간",
+            "11.30.(월) 새 구내식당 오픈"
+          ],
           "info": [
             {
               "icon": "schedule",
@@ -4971,7 +4983,10 @@
         "notice": {
           "icon": "local_shipping",
           "title": "오늘 점심은 푸드트럭!",
-          "subtitle": "구내식당 재정비 기간 · 11. 30.(월) 새 구내식당 오픈",
+          "subtitle": [
+            "구내식당 재정비 기간",
+            "11.30.(월) 새 구내식당 오픈"
+          ],
           "info": [
             {
               "icon": "schedule",
