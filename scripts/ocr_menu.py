@@ -309,6 +309,9 @@ class GeminiOcr:
         key = image_key(image_bytes)
         mime_type = guess_mime_type(image_path)
 
+        # 채널별 표 양식 안내(그룹명, 제외할 장식 문구 등). 없으면 빈 문자열.
+        base_hint = rules.CHANNEL_OCR_HINTS.get(channel_name or "", "")
+
         entry = self.cache.get_entry(key)
         if entry is not None:
             print("    (캐시 적중 — API 호출 없음)")
@@ -316,7 +319,7 @@ class GeminiOcr:
             rechecked = bool(entry.get("recheck_done"))
             model_used = entry.get("model", "")
         else:
-            result, model_used = self._ocr_any_model(image_bytes, mime_type)
+            result, model_used = self._ocr_any_model(image_bytes, mime_type, base_hint)
             if result is None:
                 return None, False
             rechecked = False
@@ -331,7 +334,7 @@ class GeminiOcr:
 
         summary = ", ".join(f"{day}: {'/'.join(groups)}" for day, groups in missing.items())
         print(f"    [누락 의심] {summary} -> 힌트를 주고 한 번 더 읽어봅니다.")
-        hint = (
+        hint = (base_hint + "\n" if base_hint else "") + (
             "주의: 이전 판독에서 다음 행이 누락된 것으로 보입니다 - "
             + "; ".join(f"{day}의 '{'/'.join(groups)}'" for day, groups in missing.items())
             + ". 표의 모든 요일 열에서 모든 행(코너)을 빠짐없이 읽어 days 전체를 다시 출력하세요. "

@@ -28,6 +28,10 @@ ARCHIVE_PATH = Path(__file__).parent.parent / "data" / "archive.json"
 
 def normalize_day(channel_name: str, day: dict):
     """하루치 entry를 정리한다. 바뀐 게 있으면 True."""
+    if day.get("special"):
+        # 임시 운영 기간(푸드트럭 등)은 rules.CHANNEL_SPECIAL_PERIODS가 그대로 정한 내용이다.
+        # 다시 정리하면 'tag' 같은 표시용 필드가 지워지므로 건드리지 않는다.
+        return False
     before = json.dumps(
         [day.get("lunch_groups", []), day.get("dinner_groups", [])],
         ensure_ascii=False, sort_keys=True,
