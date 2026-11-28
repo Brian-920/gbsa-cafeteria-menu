@@ -113,6 +113,16 @@ CHANNEL_GROUP_ITEM_EXCLUDE = {
 # 위에서부터 순서대로 검사해 처음 걸리는 규칙의 이름으로 바꾼다.
 # 어느 규칙에도 안 걸리면 OCR이 읽은 이름을 그대로 둔다(예: 공휴일 '안내').
 CHANNEL_GROUP_RENAME = {
+    # 2026-11-30~ 경과원 새 위탁업체 양식: 'A 코너 일반식' / 'B 코너 일품식' /
+    # '플러스바'(샐러드·후식·100%현미밥&비빔고추장&참기름 세 줄).
+    # 이전 업체 그룹명('중식 일반식', '플러스코너', '비빔코너' 등)과는 겹치지 않게
+    # 패턴을 좁혀 두었다(과거 기록을 normalize_archive로 다시 정리해도 안 바뀜).
+    "gbsa": [
+        (re.compile(r"A\s*코너"), "A코너"),
+        (re.compile(r"B\s*코너"), "B코너"),
+        # '샐러드코너'(이전 업체, 2026-07)와 겹치지 않도록 '샐러드'는 단독일 때만 잡는다.
+        (re.compile(r"플러스\s*바|^\s*샐러드\s*$|후식|현미밥"), "플러스바"),
+    ],
     "nano_gaeram": [
         (re.compile(r"A\s*코너"), "A코너"),
         (re.compile(r"B\s*코너"), "B코너"),
@@ -146,6 +156,40 @@ CHANNEL_GROUP_SPLIT = {
             "tail_name": "석식",
         },
     ],
+}
+
+# 메뉴가 아닌 장식 문구(요일 칸 상단 배지)를 항목에서 뺀다. 항목 전체가 일치할 때만.
+# 경과원 새 업체 식단표: 'OPEN', '탕데이(Tang Day)', '덮밥데이', '누들데이' 등.
+# ('오픈떡'처럼 메뉴 이름 일부로 쓰인 경우는 전체 일치가 아니므로 남는다.)
+CHANNEL_DECORATION_ITEM = {
+    "gbsa": re.compile(
+        r"^\s*(OPEN|오픈|[가-힣]{1,6}\s*데이|[A-Za-z]+\s*Day)\s*(\([^)]*\))?\s*$",
+        re.IGNORECASE,
+    ),
+}
+
+# 이름이 같은 그룹을 하나로 합치는 채널. 경과원 플러스바는 표에서 샐러드/후식/현미밥
+# 세 줄로 나뉘어 있어 OCR이 그룹을 여러 개로 돌려주므로 하나로 묶는다.
+CHANNEL_MERGE_SAME_NAME_GROUPS = {"gbsa"}
+
+# 이 날짜(포함)부터 석식을 운영하지 않는 채널. 날짜를 두는 이유는 이전 업체 시절
+# 석식 기록을 normalize_archive로 다시 정리해도 지워지지 않게 하기 위해서다.
+# 2026-11-30 경과원 새 위탁업체는 석식 미운영(식단표에 석식 행 없음).
+CHANNEL_NO_DINNER_FROM = {
+    "gbsa": "2026-11-30",
+}
+
+# 채널별 OCR 추가 안내. 표 양식이 고정이라 그룹명과 제외할 문구를 미리 알려준다.
+CHANNEL_OCR_HINTS = {
+    "gbsa": (
+        "이 식단표의 행 구분은 'A 코너 일반식', 'B 코너 일품식', '플러스바'(샐러드/후식 행과 "
+        "'100%현미밥 & 비빔고추장 & 참기름' 행)입니다. group_name은 각각 'A코너', 'B코너', "
+        "'플러스바'로 쓰고, 플러스바의 여러 행은 한 그룹의 items로 모으세요. "
+        "여러 요일에 걸친 행(예: 100%현미밥 & 비빔고추장 & 참기름)은 해당 요일마다 넣으세요. "
+        "요일 칸 위쪽의 'OPEN', '탕데이', '덮밥데이', '누들데이' 같은 장식 문구는 메뉴가 아니므로 "
+        "items에 넣지 마세요. 원산지·기타 안내사항은 notice에만 적으세요. "
+        "두 코너 칸이 세로로 합쳐진 요일은 위쪽 절반을 A코너, 아래쪽 절반을 B코너로 나누세요."
+    ),
 }
 
 # 표의 빈 칸이 '-', '–', '.' 같은 찌꺼기 항목으로 읽히는 경우를 걸러낸다.
@@ -189,8 +233,11 @@ def normalize_groups(channel_name, group_name, items):
     분리 -> 이름 확정 -> 찌꺼기 항목 제거 순으로 처리한다.
     """
     normalized = []
+    decoration = CHANNEL_DECORATION_ITEM.get(channel_name)
     for name, group_items in split_merged_groups(channel_name, group_name, items):
         clean_items = [it for it in group_items if not PLACEHOLDER_ITEM.match(it or "")]
+        if decoration:
+            clean_items = [it for it in clean_items if not decoration.match(it or "")]
         # 항목이 비어도 그룹 자체는 지우지 않는다. 원래 비어 있던 그룹(공휴일 등)을
         # 조용히 없애면 기존 화면과 달라지므로, 찌꺼기 항목만 걷어낸다.
         normalized.append((display_group_name(channel_name, name), clean_items))
@@ -226,9 +273,30 @@ def filter_excluded_items(channel_name, group_name, items):
     return [it for it in items if it not in exclude_set]
 
 
+def merge_same_name_groups(groups):
+    """같은 이름의 그룹을 처음 나온 순서대로 하나로 합친다(중복 항목은 한 번만)."""
+    merged, index = [], {}
+    for g in groups:
+        name = g.get("group_name")
+        if name in index:
+            target = merged[index[name]]["items"]
+            target.extend(it for it in g.get("items", []) if it not in target)
+        else:
+            index[name] = len(merged)
+            merged.append(dict(g, items=list(g.get("items", []))))
+    return merged
+
+
 def apply_day_rules(channel_name, day_date, lunch_groups, dinner_groups):
     """날짜(date)가 정해진 뒤 적용하는 채널별 요일 규칙. (lunch, dinner)를 돌려준다."""
-    if day_date.weekday() in CHANNEL_NO_DINNER_WEEKDAYS.get(channel_name, set()):
+    if channel_name in CHANNEL_MERGE_SAME_NAME_GROUPS:
+        lunch_groups = merge_same_name_groups(lunch_groups)
+        dinner_groups = merge_same_name_groups(dinner_groups)
+    no_dinner_from = CHANNEL_NO_DINNER_FROM.get(channel_name)
+    if (
+        day_date.weekday() in CHANNEL_NO_DINNER_WEEKDAYS.get(channel_name, set())
+        or (no_dinner_from and day_date.isoformat() >= no_dinner_from)
+    ):
         return lunch_groups, [dict(g, items=list(g["items"])) for g in NO_DINNER_GROUPS]
     return lunch_groups, dinner_groups
 
