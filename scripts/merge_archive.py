@@ -149,7 +149,7 @@ def main():
 
     menu_outputs = json.loads(menu_final_path.read_text(encoding="utf-8"))
 
-    now_kst = datetime.now(KST)
+    now_kst = rules.now_kst()
     run_year = now_kst.year
     # 연말/연초 경계(12월에 스크래핑했는데 다음 해로 넘어가는 주간)를 대비해
     # 올해와 내년 공휴일을 함께 조회해둔다.
