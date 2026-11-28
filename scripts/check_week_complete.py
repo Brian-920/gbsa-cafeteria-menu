@@ -28,7 +28,7 @@ CHANNELS = ["gbsa", "rdb_center", "nano_gaeram"]
 
 def current_week_weekdays_up_to_today(now: datetime = None):
     """오늘(KST) 기준 이번 주 월~금 중, 오늘까지의 날짜만 반환한다."""
-    now = now or datetime.now(KST)
+    now = now or rules.now_kst()
     today = now.date()
     monday = today - timedelta(days=today.weekday())
     return [

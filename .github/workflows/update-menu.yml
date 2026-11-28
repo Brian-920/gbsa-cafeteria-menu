@@ -3,7 +3,12 @@ name: "구내식당 식단표 자동 업데이트"
 # 매주 월요일 07:00 KST = 일요일 22:00 UTC (KST는 UTC+9시간)
 # 수동 실행(workflow_dispatch)도 항상 열어둔다 — 테스트/즉시 갱신용
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      reference_date:
+        description: "기준 날짜(YYYY-MM-DD). 비우면 오늘. 주말에 다음 주 식단을 미리 받을 때 다음 주 월요일 날짜 입력"
+        required: false
+        default: ""
   schedule:
     - cron: "0 22 * * 0"
 
@@ -13,6 +18,9 @@ permissions:
 jobs:
   update-menu:
     runs-on: ubuntu-latest
+    env:
+      # 정기 실행(schedule)에서는 비어 있어 실제 오늘 날짜를 쓴다.
+      MENU_REFERENCE_DATE: ${{ github.event.inputs.reference_date }}
     steps:
       - name: 저장소 체크아웃
         uses: actions/checkout@v5

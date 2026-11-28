@@ -18,7 +18,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 
 CHANNELS = {
-    "gbsa": "https://pf.kakao.com/_MgUGn/posts",
+    "gbsa": "https://pf.kakao.com/_BGkvX/posts",
     "rdb_center": "https://pf.kakao.com/_XCVXb/posts",
     "nano_gaeram": "https://pf.kakao.com/_APTxgn/posts",
 }

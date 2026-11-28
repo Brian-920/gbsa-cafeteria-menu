@@ -34,9 +34,10 @@ from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
 CHANNELS = {
+    # 2026-11-30: 경과원 구내식당 위탁업체 교체로 식단표 게시 채널 변경 (_MgUGn -> _BGkvX)
     "gbsa": {
         "label": "경기도경제과학진흥원 구내식당",
-        "url": "https://pf.kakao.com/_MgUGn/posts",
+        "url": "https://pf.kakao.com/_BGkvX/posts",
     },
     "rdb_center": {
         "label": "경기R&DB센터 구내식당",

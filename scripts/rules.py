@@ -4,6 +4,7 @@ scrape_menu.py가 만든 raw OCR 결과를 merge_archive.py가 정규화할 때 
 """
 
 import math
+import os
 import re
 from datetime import datetime, timedelta, timezone
 
@@ -13,6 +14,23 @@ DATE_PATTERN = re.compile(r"(\d{1,2})\s*월\s*(\d{1,2})\s*일")
 MMDD_PATTERN = re.compile(r"^\d{2}-\d{2}$")
 
 KST = timezone(timedelta(hours=9))
+
+# 수동 실행 시 '오늘'을 바꿔 끼우는 환경변수 (예: 2026-11-30).
+# 주말에 다음 주 식단표가 먼저 올라온 경우, 월요일 정기 실행을 기다리지 않고
+# 다음 주 날짜를 기준으로 미리 수집할 때 쓴다. 비어 있으면 실제 현재 시각을 쓴다.
+REFERENCE_DATE_ENV = "MENU_REFERENCE_DATE"
+
+
+def now_kst() -> datetime:
+    """파이프라인이 '오늘'로 볼 시각(KST). MENU_REFERENCE_DATE가 있으면 그 날 12:00."""
+    raw = (os.environ.get(REFERENCE_DATE_ENV) or "").strip()
+    if raw:
+        try:
+            d = datetime.strptime(raw, "%Y-%m-%d")
+        except ValueError:
+            raise SystemExit(f"{REFERENCE_DATE_ENV} 형식 오류: {raw!r} (예: 2026-11-30)")
+        return d.replace(hour=12, tzinfo=KST)
+    return datetime.now(KST)
 
 
 def extract_month_day(day: dict):
@@ -36,7 +54,7 @@ def current_week_weekdays(now: datetime = None):
     최신 게시글이 공지/안내 이미지라 여러 후보를 순회해야 할 때, 각 후보의
     OCR 결과가 '이번 주' 식단표가 맞는지 검증하는 기준으로 사용한다.
     """
-    now = now or datetime.now(KST)
+    now = now or now_kst()
     monday = now.date() - timedelta(days=now.weekday())
     return [monday + timedelta(days=i) for i in range(5)]
 
